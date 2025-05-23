@@ -2,13 +2,16 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Carnet d'entretien - Polo 5</title>
+  <title>Carnet d'entretien - Polo 4</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <style>
     body {
       font-family: Arial, sans-serif;
       margin: 20px;
       background-color: #f9f9f9;
+      min-height: 100vh; /* Garantit que le body prend au moins toute la hauteur de l'écran */
+      display: flex;
+      flex-direction: column; /* Organisation verticale */
     }
     header {
       display: flex;
@@ -27,6 +30,8 @@
     main {
       display: flex;
       justify-content: space-between;
+      flex: 1; /* Prend tout l'espace disponible restant */
+      gap: 20px; /* Espacement entre les panels */
     }
 
     .left-panel {
@@ -35,7 +40,7 @@
 
     .right-panel {
       width: 30%;
-      height: auto;
+      height: 100%;
       display: flex;
       flex-direction: column;
       gap: 10px;
