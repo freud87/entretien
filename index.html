@@ -12,7 +12,8 @@
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      height: 100%;
+      height: calc(100vh - 16px); /* Prend toute la hauteur de la fenêtre moins les marges */
+      overflow: hidden; /* Empêche le défilement global */
     }
     header {
       display: flex;
