@@ -15,9 +15,12 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      font-size: 24px;
+      /*font-size: 24px;*/
       font-weight: bold;
       margin-bottom: 20px;
+    }
+    header h3 {
+      flex: 1;
     }
     main {
       display: flex;
@@ -142,9 +145,9 @@
 <body>
 
   <header>
-    <div>Mon Carnet d’entretien : Polo 5 <br>22-</div>
+    <h3>Mon Carnet d’entretien : Polo 5 <br>22-</h3>
     <button>Nouvel entretien</button>
-    <span id="dispo">Disponible en caisse :</br><span id="solde">00.000 DT</span></span>
+    <span id="dispo">Disponible en caisse :<br><span id="solde">00.000 DT</span></span>
   </header>
 
   <main>
