@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       if (error) throw error;
 
-      const tbody = document.getElementById('table-kilometrages');
+      const tbody = document.getElementById('table-historique');
       tbody.innerHTML = '';
 
       data.forEach((item) => {
