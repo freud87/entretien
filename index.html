@@ -138,7 +138,9 @@
     tr:nth-child(even) td {
       background-color: #f4f7fb;
     }
-
+    #btn-save-km {
+      display: none;
+    }
     h2 i {
       margin-left: auto;
     }
@@ -249,7 +251,10 @@
 
     <!-- Partie droite fusionnée -->
     <div class="right-panel">
-      <h3>Kilométrages<i id="btn-ajouter-km" class="bi bi-plus-square" style="cursor:pointer;"></i></h3>
+      <h3>
+        Kilométrages
+        <i id="btn-ajouter-km" class="bi bi-plus-square" style="cursor:pointer;"></i>
+      </h3>
       <table>
         <thead>
           <tr>
@@ -260,6 +265,7 @@
         </thead>
         <tbody id="table-kilometrages"></tbody>
       </table>
+      <i id="btn-save-km" class="bi bi-floppy" style="cursor:pointer;"></i>
       <img src="vwicon.gif" alt="vwicon">
     </div>
   </main>
