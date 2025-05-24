@@ -141,9 +141,11 @@
     #btn-add-km {
       cursor: pointer;
     }
-    #btn-save-km {
-      cursor: pointer;
+    #btn-km {
       display: none;
+    }
+    #btn-km i {
+      cursor: pointer;
     }
     h2 i {
       margin-left: auto;
@@ -269,7 +271,10 @@
         </thead>
         <tbody id="table-kilometrages"></tbody>
       </table>
-      <i id="btn-save-km" class="bi bi-floppy"></i>
+      <div id="btn-km">
+        <i id="btn-save-km" class="bi bi-floppy"></i>
+        <i id="btn-cncl-km" class="bi bi-x-square"></i>
+      </div>
       <img src="vwicon.gif" alt="vwicon">
     </div>
   </main>
