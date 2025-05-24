@@ -49,6 +49,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // ✅ Appel initial
   await loadKilometrages();
 const btnAddKm = document.getElementById('btn-add-km');
+const btnKm = document.getElementById('btn-km');
 const btnSaveKm = document.getElementById('btn-save-km');
 const tbodyKm = document.getElementById('table-kilometrages');
 
@@ -68,7 +69,7 @@ btnAddKm.addEventListener('click', () => {
   `;
 
   tbodyKm.insertBefore(newRow, tbodyKm.firstChild);
-  btnSaveKm.style.display = 'inline';
+  btnKm.style.display = 'inline';
 });
 
 // Gestion du clic sur 💾
@@ -108,7 +109,7 @@ btnSaveKm.addEventListener('click', async () => {
 
   // Nettoyage UI
   document.getElementById('new-km-row')?.remove();
-  btnSaveKm.style.display = 'none';
+  btnKm.style.display = 'none';
   await loadKilometrages();
 });
 
