@@ -160,6 +160,12 @@ header {
       cursor: pointer;
       font-wight: bold;
 }
+#btn-save-km {
+      color: green;
+}
+#btn-cncl-km {
+      color: red;
+}
     h2 i {
       margin-left: auto;
       font-wight: bold;
