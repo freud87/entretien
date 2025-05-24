@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         dateCell.textContent = formattedDate;
 
         const kmCell = document.createElement('td');
-        kmCell.textContent = new Intl.NumberFormat('fr-FR').format(record.kilometres);
+        kmCell.textContent = new Intl.NumberFormat('fr-FR').format(record.kilometrage);
 
         row.append(idCell, dateCell, kmCell);
         tbody.appendChild(row);
