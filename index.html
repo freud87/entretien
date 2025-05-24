@@ -323,29 +323,6 @@
 
     await loadSolde();
   });
-
-  document.getElementById('printhist').addEventListener('click', () => {
-    const historySection = document.getElementById('history');
-
-    // Création d'une fenêtre temporaire pour l'impression
-    const printWindow = window.open('', '_blank');
-    printWindow.document.write('<html><head><title>Historique des entretiens</title>');
-    
-    // Copie du style actuel pour que l'impression soit jolie
-    const styles = Array.from(document.querySelectorAll('style')).map(s => s.innerHTML).join('');
-    printWindow.document.write(`<style>${styles}</style></head><body>`);
-
-    // On copie le contenu de la section #history
-    printWindow.document.write(historySection.innerHTML);
-    
-    printWindow.document.write('</body></html>');
-    printWindow.document.close();
-
-    // Lancement de l'impression
-    printWindow.focus();
-    printWindow.print();
-    printWindow.close();
-  });
 </script>
 
 </body>
