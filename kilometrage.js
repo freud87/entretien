@@ -52,7 +52,26 @@ const btnAddKm = document.getElementById('btn-add-km');
 const btnKm = document.getElementById('btn-km');
 const btnSaveKm = document.getElementById('btn-save-km');
 const tbodyKm = document.getElementById('table-kilometrages');
+// Sélection du bouton Annuler
+const btnCancelKm = document.getElementById('btn-cncl-km');
+// Gestion du clic sur Annuler
+btnCancelKm.addEventListener('click', () => {
+  // Supprime la ligne temporaire si elle existe
+  const newRow = document.getElementById('new-km-row');
+  if (newRow) {
+    newRow.remove();
+  }
 
+  // Optionnel : masquer ou réinitialiser les champs
+  const inputDate = document.getElementById('new-date');
+  const inputKm = document.getElementById('new-km');
+  if (inputDate) inputDate.value = '';
+  if (inputKm) inputKm.value = '';
+
+  // Remettre le bouton "+" visible/actif
+  const btnKm = document.getElementById('btn-km'); // ou 'btn-add-km' selon ton HTML
+  if (btnKm) btnKm.style.display = 'inline';
+});
 // Gestion du clic sur +
 btnAddKm.addEventListener('click', () => {
   // Empêche l’ajout de plusieurs lignes
