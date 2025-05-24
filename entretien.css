@@ -34,7 +34,7 @@ header h3 {
       flex-direction: column;
       height: 100%;
     }
-    .right-panel {
+.right-panel {
       width: 30%;
       height: auto;
       display: flex;
@@ -44,22 +44,22 @@ header h3 {
       border-radius: 10px;
       border-bottom-right-radius: 60px;
       padding: 15px;
-      background-color: white;
+      background-color: #F0F0F0;
       position: relative;
-    }
-    .right-panel img {
+}
+.right-panel img {
       position: absolute;
       right: 10px;
       bottom: 10px;
       height: 90px;
       width: 90px;
-    }
-    h2, h3 {
+}
+h2, h3 {
       /*font-size: 22px;*/
       display: flex;
       justify-content: space-between;
       align-items: center;
-    }
+}
     #histitle {
       flex:1;
     }
@@ -105,12 +105,13 @@ header h3 {
       padding: 15px;
       background-color: #F0F0F0;
 }
-    section {
+section {
       border: 2px solid #264a7a;
       border-radius: 10px;
       padding: 15px;
       flex: 1;
-    }
+      background-color: #F0F0F0;
+}
     table {
       width: 100%;
       border-collapse: collapse;
