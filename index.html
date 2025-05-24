@@ -276,6 +276,36 @@
         <!-- Chargement du script externe pour les tableaux -->
         <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
         <script src="kilometrage.js"></script>
+  <script>
+  document.addEventListener('DOMContentLoaded', async () => {
+    const supabaseUrl = 'https://ruejiywyrbnlflzyacou.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ1ZWppeXd5cmJubGZsenlhY291Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc2ODI1NDEsImV4cCI6MjA2MzI1ODU0MX0.MaMVpNzCWdiBufFzhd6RL4riLQQejTUG4FWd5cuHUd8';
+    const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+    async function loadSolde() {
+      try {
+        const { data, error } = await supabase
+          .from('solde')
+          .select('montant')
+          .order('id', { ascending: false })
+          .limit(1);
+
+        if (error) throw error;
+
+        const solde = data?.[0]?.montant ?? 0;
+
+        document.getElementById('solde').textContent =
+          new Intl.NumberFormat('fr-FR', { minimumFractionDigits: 3 }).format(solde) + ' DT';
+
+      } catch (error) {
+        console.error('Erreur chargement solde :', error);
+        document.getElementById('solde').textContent = 'Erreur';
+      }
+    }
+
+    await loadSolde();
+  });
+</script>
 
 </body>
 </html>
