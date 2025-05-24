@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     try {
       const { data, error } = await supabase
         .from('kilometrage')
-        .select('id, date, kilometres')
+        .select('id, date, kilometrage')
         .order('date', { ascending: false });
 
       if (error) throw error;
