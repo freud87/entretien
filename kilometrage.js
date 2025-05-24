@@ -69,9 +69,11 @@ btnCancelKm.addEventListener('click', () => {
   if (inputKm) inputKm.value = '';
 
   // Remettre le bouton "+" visible/actif
-  const btnKm = document.getElementById('btn-km'); // ou 'btn-add-km' selon ton HTML
-  if (btnKm) btnKm.style.display = 'inline';
+  ////const btnKm = document.getElementById('btn-km'); // ou 'btn-add-km' selon ton HTML
+  //if (btnKm) btnKm.style.display = 'inline';
+  btnKm.style.display = 'none';
 });
+  
 // Gestion du clic sur +
 btnAddKm.addEventListener('click', () => {
   // Empêche l’ajout de plusieurs lignes
