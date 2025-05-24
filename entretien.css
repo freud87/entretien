@@ -7,15 +7,15 @@ html, body {
       justify-content: space-between;
       height: calc(100vh - 16px); /* Prend toute la hauteur de la fenêtre moins les marges */
       overflow: hidden; /* Empêche le défilement global */
-    }
-    header {
+}
+header {
       display: flex;
       justify-content: space-between;
       align-items: center;
       /*font-size: 24px;
       font-weight: bold;*/
       margin-bottom: 10px;
-    }
+}
     header h3 {
       flex: 1;
     }
