@@ -54,4 +54,5 @@
     }
 
   
-loadKilometrages();
+await loadKilometrages();
+});
