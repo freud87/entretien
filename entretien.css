@@ -158,7 +158,7 @@ header {
     }
 #btn-km i {
       cursor: pointer;
-      font-wight: bold;
+      font-weight: bold;
 }
 #btn-save-km {
       color: green;
@@ -168,5 +168,5 @@ header {
 }
     h2 i {
       margin-left: auto;
-      font-wight: bold;
+      font-weight: bold;
     }
