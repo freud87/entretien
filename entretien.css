@@ -16,9 +16,9 @@ header {
       font-weight: bold;*/
       margin-bottom: 10px;
 }
-    header h3 {
+header h3 {
       flex: 1;
-    }
+}
     #dispo {
     /*margin-left: 10px;*/
     }
