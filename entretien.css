@@ -156,9 +156,10 @@ header {
     #btn-km {
       display: none;
     }
-    #btn-km i {
+#btn-km i {
       cursor: pointer;
-    }
+      font-wight: bold;
+}
     h2 i {
       margin-left: auto;
       font-wight: bold;
