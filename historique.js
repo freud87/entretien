@@ -35,13 +35,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         tdKm.textContent = new Intl.NumberFormat('fr-FR').format(item.kilometrage);
 
         // Si tu veux aussi afficher l'intervention, ajoute cette colonne :
-        // const tdIntervention = document.createElement('td');
-        // tdIntervention.textContent = item.intervention;
+        const tdIntervention = document.createElement('td');
+        tdIntervention.textContent = item.intervention;
 
         row.appendChild(tdId);
         row.appendChild(tdDate);
         row.appendChild(tdKm);
-        // row.appendChild(tdIntervention); // décommenter si tu ajoutes la colonne dans le HTML
+        row.appendChild(tdIntervention);
 
         tbody.appendChild(row);
       });
