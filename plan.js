@@ -21,7 +21,7 @@ async function chargerPlan() {
       return;
     }
 
-    tbody.innerHTML = ''; // Réinitialiser le tableau
+    tbody.innerHTML = ''; // Vider le tableau avant de remplir
 
     data.forEach(row => {
       const tr = document.createElement('tr');
@@ -33,9 +33,8 @@ async function chargerPlan() {
       `;
       tbody.appendChild(tr);
     });
-
   } catch (err) {
-    console.error('Erreur lors du chargement du plan :', err);
+    console.error('Erreur JS lors du chargement du plan :', err);
   }
 }
 
