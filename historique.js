@@ -64,16 +64,17 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 function calculerPeriodes() {
-  const rows = Array.from(document.querySelectorAll("table tbody tr"));
+  const rows = Array.from(document.querySelectorAll("#table-historique tr"));
   const interventionsMap = {};
 
   rows.forEach((row) => {
     const cells = row.cells;
+    if (cells.length < 5) return; // éviter erreur si la ligne est incomplète
 
-    const dateStr = cells[1].textContent.trim();  // DATE (index 1)
-    const kmStr = cells[2].textContent.trim().replace(/\s/g, '') || "0"; // KM (index 2)
-    const intervention = cells[3].textContent.trim(); // INTERVENTION (index 3)
-    const remarqueCell = cells[4]; // REMARQUE (index 4)
+    const dateStr = cells[1].textContent.trim();  // DATE
+    const kmStr = cells[2].textContent.trim().replace(/\s/g, '') || "0"; // KM
+    const intervention = cells[3].textContent.trim(); // INTERVENTION
+    const remarqueCell = cells[4]; // REMARQUE
 
     const date = new Date(dateStr.split('/').reverse().join('-'));
     const km = parseInt(kmStr);
@@ -88,9 +89,6 @@ function calculerPeriodes() {
       remarqueCell.textContent = `${diffMonths} mois, ${diffKm.toLocaleString()} km depuis la dernière`;
     }
 
-    // Stocker cette ligne comme la plus récente intervention de ce type
     interventionsMap[intervention] = { date, km };
   });
 }
-
-window.onload = calculerPeriodes;
