@@ -66,9 +66,10 @@ h2, h3 {
     #voiture{
       display: none;
     }
-    #printhist{
+#search,
+#printhist {
       margin-right: 5px;
-    }
+}
     #dispo,
     button {
       background-color: #1a3a75; /* Bleu foncé unifié */
