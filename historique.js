@@ -166,9 +166,9 @@ function calculerProchain() {
       const intervention = tds[3]?.textContent.trim().toLowerCase();
       const kmStr = tds[2]?.textContent.replace(/\s/g, '');
       const km = parseInt(kmStr, 10);
+
       const periodicite = plan[intervention];
 
-      // Debug facultatif
       console.log(`→ Intervention: [${intervention}], Kilométrage: ${km}, Périodicité: ${periodicite}`);
 
       if (!isNaN(km) && periodicite) {
@@ -177,7 +177,7 @@ function calculerProchain() {
       } else if (!periodicite) {
         tds[5].textContent = '⚠️ périodicité manquante';
       } else {
-        tds[5].textContent = '';
+        tds[5].textContent = ''; // Vide si kilométrage invalide
       }
     }
   });
