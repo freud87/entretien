@@ -98,16 +98,16 @@ function calculerPeriodes() {
     });
   });
 
-  // 2. Pour chaque type d'intervention
+  // 2. Pour chaque type d'intervention, calculer les remarques (durée entre deux interventions)
   Object.entries(interventionMap).forEach(([type, liste]) => {
-    // Trier cette liste par date croissante (le plus ancien en premier)
+    // Trier cette liste par date croissante
     liste.sort((a, b) => a.date - b.date);
 
     const nbInterventions = liste.length;
 
     if (nbInterventions >= 2) {
-      const derniere = liste[nbInterventions - 1]; // La plus récente
-      const avantDerniere = liste[nbInterventions - 2]; // L'avant-dernière
+      const derniere = liste[nbInterventions - 1];
+      const avantDerniere = liste[nbInterventions - 2];
 
       const diffMois = Math.round(
         (derniere.date.getTime() - avantDerniere.date.getTime()) / (1000 * 60 * 60 * 24 * 30.44)
@@ -129,13 +129,39 @@ function calculerPeriodes() {
         remarque = "Aucune donnée";
       }
 
-      // On met à jour la ligne la plus récente → celle qui est en haut (ordre décroissant)
       const tds = derniere.tr.querySelectorAll("td");
       tds[4].textContent = remarque;
     } else {
-      // Si une seule occurrence, mettre "Aucune donnée" sur cette ligne
       const tds = liste[0].tr.querySelectorAll("td");
       tds[4].textContent = "Aucune donnée";
+    }
+  });
+
+  // 3. Lire le plan d'entretien (table #table-plan)
+  const plan = {};
+  const planRows = document.querySelectorAll("#table-plan tbody tr");
+  planRows.forEach(row => {
+    const cells = row.querySelectorAll("td");
+    const intervention = cells[0].textContent.trim();
+    const kmStr = cells[1].textContent.replace(/\s/g, '');
+    const kmValue = parseInt(kmStr, 10) || 0;
+    plan[intervention] = kmValue;
+  });
+
+  // 4. Remplir la colonne "Prochain" en fonction du kilométrage
+  lignes.forEach(tr => {
+    const tds = tr.querySelectorAll("td");
+    const intervention = tds[3].textContent.trim();
+    const kmStr = tds[2].textContent.replace(/\s/g, '');
+    const km = parseInt(kmStr, 10);
+
+    const periodiciteKm = plan[intervention];
+
+    if (!isNaN(km) && periodiciteKm) {
+      const prochainKm = Math.round((km + periodiciteKm) / 10000) * 10000;
+      tds[5].textContent = `${prochainKm} km`;
+    } else {
+      tds[5].textContent = "";
     }
   });
 }
