@@ -74,7 +74,7 @@ function calculerPeriodes() {
     const tds = tr.querySelectorAll("td");
 
     const dateStr = tds[1].textContent;
-    const kmStr = tds[2].textContent.replace(/\s+/g, ''); // Supprime tous les espaces
+    const kmStr = tds[2].textContent.replace(/\s/g, '');
     const intervention = tds[3].textContent.trim();
 
     const kilometrage = parseInt(kmStr, 10);
@@ -84,19 +84,16 @@ function calculerPeriodes() {
     let remarque = "";
 
     if (dernieresInterventions[intervention]) {
-      // Déjà vu avant → c'est potentiellement une nouvelle période
-      const { date: derniereDate, kilometrage: dernierKm } = dernieresInterventions[intervention];
-
+      const derniereDate = dernieresInterventions[intervention].date;
       const diffMois = Math.round((dateObj - derniereDate) / (1000 * 60 * 60 * 24 * 30.44));
 
       if (diffMois > 0) {
-        if (!isNaN(kilometrage) && !isNaN(dernierKm)) {
-          const diffKm = kilometrage - dernierKm;
-          if (diffKm > 0) {
-            remarque = `${diffKm} km et ${diffMois} mois`;
-          } else {
-            remarque = `${diffMois} mois`;
-          }
+        const diffKm = isNaN(kilometrage) || isNaN(derniereInterventions[intervention].kilometrage)
+          ? null
+          : kilometrage - dernieresInterventions[intervention].kilometrage;
+
+        if (diffKm !== null && diffKm > 0) {
+          remarque = `${diffKm} km et ${diffMois} mois`;
         } else {
           remarque = `${diffMois} mois`;
         }
@@ -105,14 +102,14 @@ function calculerPeriodes() {
       }
 
     } else {
-      // Première fois qu’on voit ce type → c’est une première occurrence
+      // C'est la première fois qu'on rencontre ce type → c'est une nouvelle intervention
       remarque = "Première occurrence";
     }
 
     // Mettre à jour la cellule Remarque
     tds[4].textContent = remarque;
 
-    // Mise à jour du dernier passage (toujours)
+    // On sauvegarde les données actuelles comme "dernière"
     dernieresInterventions[intervention] = {
       date: dateObj,
       kilometrage,
