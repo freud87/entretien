@@ -57,8 +57,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         tbody.appendChild(row);
       });
 
-      // Calculer les remarques une fois le tableau rempli
+      // Calculer les remarques/prochain une fois le tableau rempli
       calculerPeriodes();
+      calculerProchain();
 
     } catch (error) {
       console.error('Erreur chargement kilométrages :', error);
@@ -136,6 +137,39 @@ function calculerPeriodes() {
       // Si une seule occurrence, mettre "Aucune donnée" sur cette ligne
       const tds = liste[0].tr.querySelectorAll("td");
       tds[4].textContent = "Aucune donnée";
+    }
+  });
+}
+function calculerProchain() {
+  const lignes = Array.from(document.querySelectorAll("#table-historique tr"));
+
+  // Lire le plan d’entretien depuis le tableau #table-plan
+  const plan = {};
+  const planRows = document.querySelectorAll("#table-plan tbody tr");
+  planRows.forEach(row => {
+    const cells = row.querySelectorAll("td");
+    const intervention = cells[1]?.textContent.trim(); // colonne 2 = intervention
+    const kmStr = cells[2]?.textContent.replace(/\s/g, ''); // colonne 3 = périodicité en km
+    const km = parseInt(kmStr, 10);
+    if (intervention && !isNaN(km)) {
+      plan[intervention] = km;
+    }
+  });
+
+  // Parcourir chaque ligne du tableau historique
+  lignes.forEach(tr => {
+    const tds = tr.querySelectorAll("td");
+    const intervention = tds[3]?.textContent.trim(); // colonne 4 = intervention
+    const kmStr = tds[2]?.textContent.replace(/\s/g, ''); // colonne 3 = kilométrage
+    const km = parseInt(kmStr, 10);
+
+    const periodicite = plan[intervention];
+
+    if (!isNaN(km) && periodicite) {
+      const prochainKm = Math.round((km + periodicite) / 10000) * 10000;
+      tds[5].textContent = `${prochainKm} km`;
+    } else {
+      tds[5].textContent = ''; // vide si aucune périodicité connue
     }
   });
 }
