@@ -83,7 +83,7 @@ function calculerPeriodes() {
     if (interventionMap[intervention]) {
       const next = interventionMap[intervention];
 
-      const diffYears = next.date.getFullYear() - date.getFullYear();
+      const diffYears = date.getFullYear() - next.date.getFullYear();
       const diffMonths = diffYears * 12 + (next.date.getMonth() - date.getMonth());
       const diffKm = Math.abs(next.km - km);
 
