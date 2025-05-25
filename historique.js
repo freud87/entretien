@@ -62,3 +62,52 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   await chargerKilometrages();
 });
+function remplirTableau(historique) {
+  // Dictionnaire pour stocker la dernière occurrence de chaque type d'intervention
+  const dernieresInterventions = {};
+
+  // Récupère le corps du tableau HTML
+  const tbody = document.getElementById("table-historique");
+  tbody.innerHTML = ""; // Vide le contenu existant
+
+  historique.forEach(entry => {
+    const { id, date, kilometrage, intervention } = entry;
+
+    // Création d'une ligne de tableau
+    const tr = document.createElement("tr");
+
+    // Conversion de la date en objet Date JS
+    const dateObj = new Date(date.split("/").reverse().join("-")); // gère JJ/MM/YYYY
+
+    // Initialiser la remarque
+    let remarque = "";
+
+    if (dernieresInterventions[intervention]) {
+      const derniere = dernieresInterventions[intervention];
+      const derniereDateObj = new Date(derniere.date.split("/").reverse().join("-"));
+      const diffMois = Math.round((dateObj - derniereDateObj) / (1000 * 60 * 60 * 24 * 30.44));
+      const diffKm = kilometrage !== 0 && derniere.kilometrage !== 0 ? kilometrage - derniere.kilometrage : null;
+
+      if (diffKm !== null) {
+        remarque += `${diffKm} km et `;
+      }
+      remarque += `${diffMois} mois`;
+    } else {
+      remarque = "Aucune donnée";
+    }
+
+    // Mise à jour du dernier passage
+    dernieresInterventions[intervention] = { date, kilometrage };
+
+    // Remplissage des cellules
+    tr.innerHTML = `
+      <td class="hidden">${id}</td>
+      <td>${date}</td>
+      <td>${kilometrage !== 0 ? kilometrage.toLocaleString() : "-"}</td>
+      <td>${intervention}</td>
+      <td>${remarque}</td>
+    `;
+
+    tbody.appendChild(tr);
+  });
+}
