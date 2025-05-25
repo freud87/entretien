@@ -173,3 +173,39 @@ function calculerProchain() {
     }
   });
 }
+function calculerProchain() {
+  const lignes = Array.from(document.querySelectorAll("#table-historique tr"));
+
+  // Lire le plan d’entretien depuis le tableau #table-plan
+  const plan = {};
+  const planRows = document.querySelectorAll("#table-plan tbody tr");
+  planRows.forEach(row => {
+    const cells = row.querySelectorAll("td");
+    const intervention = cells[1]?.textContent.trim(); // colonne 2 = intervention
+    const kmStr = cells[2]?.textContent.replace(/\s/g, ''); // colonne 3 = périodicité km
+    const km = parseInt(kmStr, 10);
+
+    // On ne garde que les interventions avec une périodicité valide (> 0)
+    if (intervention && !isNaN(km) && km > 0) {
+      plan[intervention] = km;
+    }
+  });
+
+  // Appliquer la périodicité à chaque ligne historique
+  lignes.forEach(tr => {
+    const tds = tr.querySelectorAll("td");
+    const intervention = tds[3]?.textContent.trim(); // colonne 4 = intervention
+    const kmStr = tds[2]?.textContent.replace(/\s/g, ''); // colonne 3 = kilométrage
+    const km = parseInt(kmStr, 10);
+
+    const periodicite = plan[intervention];
+
+    if (!isNaN(km) && periodicite) {
+      // Calcul du prochain kilométrage, arrondi au millier supérieur
+      const prochainKm = Math.round((km + periodicite) / 10000) * 10000;
+      tds[5].textContent = `${prochainKm.toLocaleString("fr-FR")} km`;
+    } else {
+      tds[5].textContent = ''; // vide si aucune périodicité connue
+    }
+  });
+}
