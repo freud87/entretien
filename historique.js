@@ -121,9 +121,9 @@ function calculerPeriodes() {
           : derniere.kilometrage - avantDerniere.kilometrage;
 
         if (diffKm !== null && diffKm > 0) {
-          remarque = ${diffKm} km et ${diffMois} mois;
+          remarque = `${diffKm} km et ${diffMois} mois`;
         } else {
-          remarque = ${diffMois} mois;
+          remarque = `${diffMois} mois`;
         }
       } else {
         remarque = "Aucune donnée";
