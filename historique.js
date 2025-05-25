@@ -72,9 +72,10 @@ function calculerPeriodes() {
   const tbody = document.getElementById("table-historique");
   const lignes = Array.from(tbody.querySelectorAll("tr"));
 
+  // Dictionnaire pour stocker les interventions du même type
   const interventionMap = {};
 
-  // 1. Regrouper les interventions par type
+  // 1. Lire toutes les lignes et les regrouper par type d'intervention
   lignes.forEach((tr) => {
     const tds = tr.querySelectorAll("td");
 
@@ -84,7 +85,7 @@ function calculerPeriodes() {
 
     const kilometrage = parseInt(kmStr, 10);
     const dateParts = dateStr.split("/");
-    const dateObj = new Date(dateParts[2], dateParts[1] - 1, dateParts[0]);
+    const dateObj = new Date(dateParts[2], dateParts[1] - 1, dateParts[0]); // Date JS
 
     if (!interventionMap[intervention]) {
       interventionMap[intervention] = [];
@@ -97,60 +98,44 @@ function calculerPeriodes() {
     });
   });
 
-  // 2. Calculer les remarques (différence entre les 2 dernières interventions similaires)
+  // 2. Pour chaque type d'intervention
   Object.entries(interventionMap).forEach(([type, liste]) => {
+    // Trier cette liste par date croissante (le plus ancien en premier)
     liste.sort((a, b) => a.date - b.date);
 
     const nbInterventions = liste.length;
 
     if (nbInterventions >= 2) {
-      const derniere = liste[nbInterventions - 1];
-      const avantDerniere = liste[nbInterventions - 2];
+      const derniere = liste[nbInterventions - 1]; // La plus récente
+      const avantDerniere = liste[nbInterventions - 2]; // L'avant-dernière
 
       const diffMois = Math.round(
         (derniere.date.getTime() - avantDerniere.date.getTime()) / (1000 * 60 * 60 * 24 * 30.44)
       );
 
-      const diffKm = isNaN(derniere.kilometrage) || isNaN(avantDerniere.kilometrage)
-        ? null
-        : derniere.kilometrage - avantDerniere.kilometrage;
+      let remarque = "";
 
-      const remarque = (diffKm !== null && diffKm > 0)
-        ? `${diffKm} km et ${diffMois} mois`
-        : `${diffMois} mois`;
+      if (diffMois > 0) {
+        const diffKm = isNaN(derniere.kilometrage) || isNaN(avantDerniere.kilometrage)
+          ? null
+          : derniere.kilometrage - avantDerniere.kilometrage;
 
+        if (diffKm !== null && diffKm > 0) {
+          remarque = ${diffKm} km et ${diffMois} mois;
+        } else {
+          remarque = ${diffMois} mois;
+        }
+      } else {
+        remarque = "Aucune donnée";
+      }
+
+      // On met à jour la ligne la plus récente → celle qui est en haut (ordre décroissant)
       const tds = derniere.tr.querySelectorAll("td");
       tds[4].textContent = remarque;
     } else {
+      // Si une seule occurrence, mettre "Aucune donnée" sur cette ligne
       const tds = liste[0].tr.querySelectorAll("td");
       tds[4].textContent = "Aucune donnée";
-    }
-  });
-
-  // 3. Lire le plan d'entretien
-  const plan = {};
-  const planRows = document.querySelectorAll("#table-plan tbody tr");
-  planRows.forEach(row => {
-    const cells = row.querySelectorAll("td");
-    const intervention = cells[1].textContent.trim(); // colonne 2 = nom
-    const kmStr = cells[2].textContent.replace(/\s/g, ''); // colonne 3 = périodicité km
-    const kmValue = parseInt(kmStr, 10) || 0;
-    plan[intervention] = kmValue;
-  });
-
-  // 4. Calculer la colonne "Prochain"
-  lignes.forEach(tr => {
-    const tds = tr.querySelectorAll("td");
-    const intervention = tds[3].textContent.trim();
-    const kmStr = tds[2].textContent.replace(/\s/g, '');
-    const km = parseInt(kmStr, 10);
-    const periodiciteKm = plan[intervention];
-
-    if (!isNaN(km) && periodiciteKm) {
-      const prochainKm = Math.round((km + periodiciteKm) / 10000) * 10000;
-      tds[5].textContent = `${prochainKm} km`;
-    } else {
-      tds[5].textContent = "";
     }
   });
 }
