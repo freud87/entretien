@@ -65,44 +65,57 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 function calculerPeriodes() {
   const tbody = document.getElementById("table-historique");
-  const lignes = Array.from(tbody.querySelectorAll("tr")); // On récupère toutes les lignes
+  const lignes = Array.from(tbody.querySelectorAll("tr"));
 
-  const dernieresInterventions = {}; // Stocke la dernière occurrence de chaque intervention
+  // Dictionnaire pour garder trace de la dernière date/km par type d'intervention
+  const dernieresInterventions = {};
 
   lignes.forEach((tr) => {
     const tds = tr.querySelectorAll("td");
 
-    // Récupération des données de la ligne
-    const dateStr = tds[1].textContent; // Date (en format français)
-    const kmStr = tds[2].textContent.replace(/\s/g, ''); // Nettoyage des espaces
+    const dateStr = tds[1].textContent;
+    const kmStr = tds[2].textContent.replace(/\s+/g, ''); // Supprime tous les espaces
     const intervention = tds[3].textContent.trim();
 
-    // Conversion en valeurs exploitables
     const kilometrage = parseInt(kmStr, 10);
     const dateParts = dateStr.split("/");
     const dateObj = new Date(dateParts[2], dateParts[1] - 1, dateParts[0]); // YYYY-MM-DD
 
-    let remarque = "Aucune donnée";
+    let remarque = "";
 
     if (dernieresInterventions[intervention]) {
-      const derniere = dernieresInterventions[intervention];
-      const diffMois = Math.round((dateObj - derniere.date) / (1000 * 60 * 60 * 24 * 30.44));
-      const diffKm = isNaN(kilometrage) || isNaN(derniere.kilometrage) ? null : kilometrage - derniere.kilometrage;
+      // Déjà vu avant → c'est potentiellement une nouvelle période
+      const { date: derniereDate, kilometrage: dernierKm } = dernieresInterventions[intervention];
 
-      if (diffKm !== null && diffKm > 0) {
-        remarque = `${diffKm} km et ${diffMois} mois`;
+      const diffMois = Math.round((dateObj - derniereDate) / (1000 * 60 * 60 * 24 * 30.44));
+
+      if (diffMois > 0) {
+        if (!isNaN(kilometrage) && !isNaN(dernierKm)) {
+          const diffKm = kilometrage - dernierKm;
+          if (diffKm > 0) {
+            remarque = `${diffKm} km et ${diffMois} mois`;
+          } else {
+            remarque = `${diffMois} mois`;
+          }
+        } else {
+          remarque = `${diffMois} mois`;
+        }
       } else {
-        remarque = `${diffMois} mois`;
+        remarque = "Aucune donnée";
       }
+
+    } else {
+      // Première fois qu’on voit ce type → c’est une première occurrence
+      remarque = "Première occurrence";
     }
 
     // Mettre à jour la cellule Remarque
     tds[4].textContent = remarque;
 
-    // Sauvegarder cette intervention comme dernière occurrence
+    // Mise à jour du dernier passage (toujours)
     dernieresInterventions[intervention] = {
       date: dateObj,
-      kilometrage: kilometrage
+      kilometrage,
     };
   });
 }
