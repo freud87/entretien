@@ -39,4 +39,3 @@ async function chargerPlan() {
 }
 
 document.addEventListener('DOMContentLoaded', chargerPlan);
-
