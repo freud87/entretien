@@ -41,12 +41,17 @@ document.addEventListener('DOMContentLoaded', async () => {
         const tdRemarque = document.createElement('td');
         tdRemarque.textContent = ''; // vide pour être rempli ensuite
 
+        // Colonne Prochain (vide au départ, remplie plus tard)
+        const tdProchain = document.createElement('td');
+        tdProchain.textContent = ''; // vide pour être rempli ensuite
+
         // Ajouter les cellules à la ligne
         row.appendChild(tdId);
         row.appendChild(tdDate);
         row.appendChild(tdKm);
         row.appendChild(tdIntervention);
         row.appendChild(tdRemarque);
+        row.appendChild(tdProchain);
 
         // Ajouter la ligne au tableau
         tbody.appendChild(row);
