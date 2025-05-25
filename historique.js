@@ -53,16 +53,16 @@ document.addEventListener('DOMContentLoaded', async () => {
   await chargerKilometrages();
 });
 
-
 function calculerPeriodes() {
     const rows = Array.from(document.querySelectorAll("table tr")).slice(1); // Ignorer l'en-tête
     const interventionsMap = {};
 
-    rows.forEach((row, index) => {
-        const dateStr = row.cells[0].textContent.trim();
-        const kmStr = row.cells[1].textContent.trim().replace(/\s/g, '') || "0";
-        const intervention = row.cells[2].textContent.trim();
-        const remarqueCell = row.cells[3];
+    rows.forEach((row) => {
+        const dateStr = row.cells[1].textContent.trim(); // DATE
+        const kmStr = row.cells[2].textContent.trim().replace(/\s/g, '') || "0"; // KILOMÉTRAGE
+        const intervention = row.cells[3].textContent.trim(); // INTERVENTION
+        const remarqueCell = row.cells[4]; // REMARQUE
+
         const date = new Date(dateStr.split('/').reverse().join('-')); // "DD/MM/YYYY" → "YYYY-MM-DD"
         const km = parseInt(kmStr);
 
