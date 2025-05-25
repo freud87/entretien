@@ -67,9 +67,10 @@ function calculerPeriodes() {
   const tbody = document.getElementById("table-historique");
   const lignes = Array.from(tbody.querySelectorAll("tr"));
 
-  // Dictionnaire pour garder trace de la dernière date/km par type d'intervention
-  const dernieresInterventions = {};
+  // Dictionnaire pour stocker les interventions du même type
+  const interventionMap = {};
 
+  // 1. Lire toutes les lignes et les regrouper par type d'intervention
   lignes.forEach((tr) => {
     const tds = tr.querySelectorAll("td");
 
@@ -79,18 +80,40 @@ function calculerPeriodes() {
 
     const kilometrage = parseInt(kmStr, 10);
     const dateParts = dateStr.split("/");
-    const dateObj = new Date(dateParts[2], dateParts[1] - 1, dateParts[0]); // YYYY-MM-DD
+    const dateObj = new Date(dateParts[2], dateParts[1] - 1, dateParts[0]); // Date JS
 
-    let remarque = "";
+    if (!interventionMap[intervention]) {
+      interventionMap[intervention] = [];
+    }
 
-    if (dernieresInterventions[intervention]) {
-      const derniereDate = dernieresInterventions[intervention].date;
-      const diffMois = Math.round((dateObj - derniereDate) / (1000 * 60 * 60 * 24 * 30.44));
+    interventionMap[intervention].push({
+      tr,
+      date: dateObj,
+      kilometrage,
+    });
+  });
+
+  // 2. Pour chaque type d'intervention
+  Object.entries(interventionMap).forEach(([type, liste]) => {
+    // Trier cette liste par date croissante (le plus ancien en premier)
+    liste.sort((a, b) => a.date - b.date);
+
+    const nbInterventions = liste.length;
+
+    if (nbInterventions >= 2) {
+      const derniere = liste[nbInterventions - 1]; // La plus récente
+      const avantDerniere = liste[nbInterventions - 2]; // L'avant-dernière
+
+      const diffMois = Math.round(
+        (derniere.date.getTime() - avantDerniere.date.getTime()) / (1000 * 60 * 60 * 24 * 30.44)
+      );
+
+      let remarque = "";
 
       if (diffMois > 0) {
-        const diffKm = isNaN(kilometrage) || isNaN(derniereInterventions[intervention].kilometrage)
+        const diffKm = isNaN(derniere.kilometrage) || isNaN(avantDerniere.kilometrage)
           ? null
-          : kilometrage - dernieresInterventions[intervention].kilometrage;
+          : derniere.kilometrage - avantDerniere.kilometrage;
 
         if (diffKm !== null && diffKm > 0) {
           remarque = `${diffKm} km et ${diffMois} mois`;
@@ -101,17 +124,13 @@ function calculerPeriodes() {
         remarque = "Aucune donnée";
       }
 
-      // On met à jour la remarque uniquement sur cette ligne
+      // On met à jour la ligne la plus récente → celle qui est en haut (ordre décroissant)
+      const tds = derniere.tr.querySelectorAll("td");
       tds[4].textContent = remarque;
     } else {
-      // Première fois qu'on voit ce type → aucune donnée
+      // Si une seule occurrence, mettre "Aucune donnée" sur cette ligne
+      const tds = liste[0].tr.querySelectorAll("td");
       tds[4].textContent = "Aucune donnée";
     }
-
-    // On sauvegarde les données actuelles comme "dernière"
-    dernieresInterventions[intervention] = {
-      date: dateObj,
-      kilometrage,
-    };
   });
 }
