@@ -62,52 +62,47 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   await chargerKilometrages();
 });
-function remplirTableau(historique) {
-  // Dictionnaire pour stocker la dernière occurrence de chaque type d'intervention
-  const dernieresInterventions = {};
 
-  // Récupère le corps du tableau HTML
+function calculerPeriodes() {
   const tbody = document.getElementById("table-historique");
-  tbody.innerHTML = ""; // Vide le contenu existant
+  const lignes = Array.from(tbody.querySelectorAll("tr")); // On récupère toutes les lignes
 
-  historique.forEach(entry => {
-    const { id, date, kilometrage, intervention } = entry;
+  const dernieresInterventions = {}; // Stocke la dernière occurrence de chaque intervention
 
-    // Création d'une ligne de tableau
-    const tr = document.createElement("tr");
+  lignes.forEach((tr) => {
+    const tds = tr.querySelectorAll("td");
 
-    // Conversion de la date en objet Date JS
-    const dateObj = new Date(date.split("/").reverse().join("-")); // gère JJ/MM/YYYY
+    // Récupération des données de la ligne
+    const dateStr = tds[1].textContent; // Date (en format français)
+    const kmStr = tds[2].textContent.replace(/\s/g, ''); // Nettoyage des espaces
+    const intervention = tds[3].textContent.trim();
 
-    // Initialiser la remarque
-    let remarque = "";
+    // Conversion en valeurs exploitables
+    const kilometrage = parseInt(kmStr, 10);
+    const dateParts = dateStr.split("/");
+    const dateObj = new Date(dateParts[2], dateParts[1] - 1, dateParts[0]); // YYYY-MM-DD
+
+    let remarque = "Aucune donnée";
 
     if (dernieresInterventions[intervention]) {
       const derniere = dernieresInterventions[intervention];
-      const derniereDateObj = new Date(derniere.date.split("/").reverse().join("-"));
-      const diffMois = Math.round((dateObj - derniereDateObj) / (1000 * 60 * 60 * 24 * 30.44));
-      const diffKm = kilometrage !== 0 && derniere.kilometrage !== 0 ? kilometrage - derniere.kilometrage : null;
+      const diffMois = Math.round((dateObj - derniere.date) / (1000 * 60 * 60 * 24 * 30.44));
+      const diffKm = isNaN(kilometrage) || isNaN(derniere.kilometrage) ? null : kilometrage - derniere.kilometrage;
 
-      if (diffKm !== null) {
-        remarque += `${diffKm} km et `;
+      if (diffKm !== null && diffKm > 0) {
+        remarque = `${diffKm} km et ${diffMois} mois`;
+      } else {
+        remarque = `${diffMois} mois`;
       }
-      remarque += `${diffMois} mois`;
-    } else {
-      remarque = "Aucune donnée";
     }
 
-    // Mise à jour du dernier passage
-    dernieresInterventions[intervention] = { date, kilometrage };
+    // Mettre à jour la cellule Remarque
+    tds[4].textContent = remarque;
 
-    // Remplissage des cellules
-    tr.innerHTML = `
-      <td class="hidden">${id}</td>
-      <td>${date}</td>
-      <td>${kilometrage !== 0 ? kilometrage.toLocaleString() : "-"}</td>
-      <td>${intervention}</td>
-      <td>${remarque}</td>
-    `;
-
-    tbody.appendChild(tr);
+    // Sauvegarder cette intervention comme dernière occurrence
+    dernieresInterventions[intervention] = {
+      date: dateObj,
+      kilometrage: kilometrage
+    };
   });
 }
