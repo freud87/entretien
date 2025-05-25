@@ -167,6 +167,8 @@ function calculerProchain() {
     const km = parseInt(kmStr, 10);
 
     const periodicite = plan[intervention];
+    
+console.log(`→ Intervention: [${intervention}], Kilométrage: ${km}, Périodicité: ${periodicite}`);
 
     if (!isNaN(km) && periodicite) {
       // Calcul du prochain kilométrage, arrondi au millier supérieur
