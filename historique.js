@@ -149,33 +149,36 @@ function calculerProchain() {
   const planRows = document.querySelectorAll("#table-plan tbody tr");
   planRows.forEach(row => {
     const cells = row.querySelectorAll("td");
-    const intervention = cells[1]?.textContent.trim(); // colonne 2 = intervention
-    const kmStr = cells[2]?.textContent.replace(/\s/g, ''); // colonne 3 = périodicité km
-    const km = parseInt(kmStr, 10);
-
-    // On ne garde que les interventions avec une périodicité valide (> 0)
-    if (intervention && !isNaN(km) && km > 0) {
-      plan[intervention] = km;
+    if (cells.length >= 3) {
+      const intervention = cells[1]?.textContent.trim().toLowerCase();
+      const kmStr = cells[2]?.textContent.replace(/\s/g, '');
+      const km = parseInt(kmStr, 10);
+      if (intervention && !isNaN(km)) {
+        plan[intervention] = km;
+      }
     }
   });
 
-  // Appliquer la périodicité à chaque ligne historique
+  // Parcourir chaque ligne du tableau historique
   lignes.forEach(tr => {
     const tds = tr.querySelectorAll("td");
-    const intervention = tds[3]?.textContent.trim(); // colonne 4 = intervention
-    const kmStr = tds[2]?.textContent.replace(/\s/g, ''); // colonne 3 = kilométrage
-    const km = parseInt(kmStr, 10);
+    if (tds.length >= 6) {
+      const intervention = tds[3]?.textContent.trim().toLowerCase();
+      const kmStr = tds[2]?.textContent.replace(/\s/g, '');
+      const km = parseInt(kmStr, 10);
+      const periodicite = plan[intervention];
 
-    const periodicite = plan[intervention];
-    
-console.log(`→ Intervention: [${intervention}], Kilométrage: ${km}, Périodicité: ${periodicite}`);
+      // Debug facultatif
+      console.log(`→ Intervention: [${intervention}], Kilométrage: ${km}, Périodicité: ${periodicite}`);
 
-    if (!isNaN(km) && periodicite) {
-      // Calcul du prochain kilométrage, arrondi au millier supérieur
-      const prochainKm = Math.round((km + periodicite) / 10000) * 10000;
-      tds[5].textContent = `${prochainKm.toLocaleString("fr-FR")} km`;
-    } else {
-      tds[5].textContent = ''; // vide si aucune périodicité connue
+      if (!isNaN(km) && periodicite) {
+        const prochainKm = Math.round((km + periodicite) / 10000) * 10000;
+        tds[5].textContent = `${prochainKm.toLocaleString('fr-FR')} km`;
+      } else if (!periodicite) {
+        tds[5].textContent = '⚠️ périodicité manquante';
+      } else {
+        tds[5].textContent = '';
+      }
     }
   });
 }
