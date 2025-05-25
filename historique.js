@@ -62,35 +62,3 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   await chargerKilometrages();
 });
-
-function calculerPeriodes() {
-  const rows = Array.from(document.querySelectorAll("#table-historique tr"));
-  const interventionMap = {}; // contiendra l'intervention la plus récente déjà rencontrée
-
-  for (let i = rows.length - 1; i >= 0; i--) {
-    const row = rows[i];
-    const cells = row.cells;
-    if (cells.length < 5) continue;
-
-    const dateStr = cells[1].textContent.trim();  // DATE
-    const kmStr = cells[2].textContent.trim().replace(/\s/g, '') || "0";
-    const intervention = cells[3].textContent.trim();
-    const remarqueCell = cells[4];
-
-    const date = new Date(dateStr.split('/').reverse().join('-'));
-    const km = parseInt(kmStr);
-
-    if (interventionMap[intervention]) {
-      const next = interventionMap[intervention];
-
-      const diffYears = date.getFullYear() - next.date.getFullYear();
-      const diffMonths = diffYears * 12 + (next.date.getMonth() - date.getMonth());
-      const diffKm = Math.abs(next.km - km);
-
-      remarqueCell.textContent = `${diffMonths} mois, ${diffKm.toLocaleString()} km depuis la dernière`;
-    }
-
-    // Enregistrer l'intervention comme la plus ancienne vue jusqu'ici
-    interventionMap[intervention] = { date, km };
-  }
-}
