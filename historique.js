@@ -54,32 +54,33 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 function calculerPeriodes() {
-    const rows = Array.from(document.querySelectorAll("table tr")).slice(1); // Ignorer l'en-tête
-    const interventionsMap = {};
+  const rows = Array.from(document.querySelectorAll("table tbody tr"));
+  const interventionsMap = {};
 
-    rows.forEach((row) => {
-        const dateStr = row.cells[1].textContent.trim(); // DATE
-        const kmStr = row.cells[2].textContent.trim().replace(/\s/g, '') || "0"; // KILOMÉTRAGE
-        const intervention = row.cells[3].textContent.trim(); // INTERVENTION
-        const remarqueCell = row.cells[4]; // REMARQUE
+  rows.forEach((row) => {
+    const cells = row.cells;
 
-        const date = new Date(dateStr.split('/').reverse().join('-')); // "DD/MM/YYYY" → "YYYY-MM-DD"
-        const km = parseInt(kmStr);
+    const dateStr = cells[1].textContent.trim();  // DATE (index 1)
+    const kmStr = cells[2].textContent.trim().replace(/\s/g, '') || "0"; // KM (index 2)
+    const intervention = cells[3].textContent.trim(); // INTERVENTION (index 3)
+    const remarqueCell = cells[4]; // REMARQUE (index 4)
 
-        if (interventionsMap[intervention]) {
-            const prev = interventionsMap[intervention];
+    const date = new Date(dateStr.split('/').reverse().join('-'));
+    const km = parseInt(kmStr);
 
-            const diffYears = date.getFullYear() - prev.date.getFullYear();
-            const diffMonths = diffYears * 12 + (date.getMonth() - prev.date.getMonth());
+    if (interventionsMap[intervention]) {
+      const prev = interventionsMap[intervention];
 
-            const diffKm = Math.abs(km - prev.km);
+      const diffYears = prev.date.getFullYear() - date.getFullYear();
+      const diffMonths = diffYears * 12 + (prev.date.getMonth() - date.getMonth());
+      const diffKm = Math.abs(prev.km - km);
 
-            remarqueCell.textContent = `${diffMonths} mois, ${diffKm.toLocaleString()} km depuis la dernière`;
-        }
+      remarqueCell.textContent = `${diffMonths} mois, ${diffKm.toLocaleString()} km depuis la dernière`;
+    }
 
-        // Stocker cette intervention comme la plus récente pour ce type
-        interventionsMap[intervention] = { date, km };
-    });
+    // Stocker cette ligne comme la plus récente intervention de ce type
+    interventionsMap[intervention] = { date, km };
+  });
 }
 
 window.onload = calculerPeriodes;
