@@ -1,39 +1,43 @@
+// plan.js — version compatible avec <script src="supabase-js"> déjà chargée
 
-//import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+const supabaseUrl = 'https://ruejiywyrbnlflzyacou.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'; // tronqué ici
+const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-//const supabaseUrl = 'https://ruejiywyrbnlflzyacou.supabase.co';
-//const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ1ZWppeXd5cmJubGZsenlhY291Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc2ODI1NDEsImV4cCI6MjA2MzI1ODU0MX0.MaMVpNzCWdiBufFzhd6RL4riLQQejTUG4FWd5cuHUd8';
+async function chargerPlan() {
+  try {
+    const { data, error } = await supabase
+      .from('plan')
+      .select('id, intervention, cycle_km, cycle_mois');
 
-const supabase = createClient(supabaseUrl, supabaseKey);
+    if (error) {
+      console.error('Erreur de récupération des données :', error.message);
+      return;
+    }
 
-async function loadPlanData() {
-  const { data, error } = await supabase
-    .from('plan')
-    .select('id, intervention, cycle_km, cycle_mois');
+    const tbody = document.getElementById('table-plan');
+    if (!tbody) {
+      console.warn("Élément #table-plan introuvable.");
+      return;
+    }
 
-  if (error) {
-    console.error('Erreur de récupération des données Supabase :', error.message);
-    return;
+    tbody.innerHTML = ''; // Réinitialiser le tableau
+
+    data.forEach(row => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${row.id}</td>
+        <td>${row.intervention}</td>
+        <td>${row.cycle_km}</td>
+        <td>${row.cycle_mois}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+  } catch (err) {
+    console.error('Erreur lors du chargement du plan :', err);
   }
-
-  const tbody = document.getElementById('table-plan');
-  if (!tbody) {
-    console.warn("Élément avec ID 'table-plan' introuvable.");
-    return;
-  }
-
-  tbody.innerHTML = ''; // Vider le tbody avant remplissage
-
-  data.forEach(row => {
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td>${row.id}</td>
-      <td>${row.intervention}</td>
-      <td>${row.cycle_km}</td>
-      <td>${row.cycle_mois}</td>
-    `;
-    tbody.appendChild(tr);
-  });
 }
 
-document.addEventListener('DOMContentLoaded', loadPlanData);
+document.addEventListener('DOMContentLoaded', chargerPlan);
+
