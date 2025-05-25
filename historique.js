@@ -101,13 +101,12 @@ function calculerPeriodes() {
         remarque = "Aucune donnée";
       }
 
+      // On met à jour la remarque uniquement sur cette ligne
+      tds[4].textContent = remarque;
     } else {
-      // C'est la première fois qu'on rencontre ce type → c'est une nouvelle intervention
-      remarque = "Première occurrence";
+      // Première fois qu'on voit ce type → aucune donnée
+      tds[4].textContent = "Aucune donnée";
     }
-
-    // Mettre à jour la cellule Remarque
-    tds[4].textContent = remarque;
 
     // On sauvegarde les données actuelles comme "dernière"
     dernieresInterventions[intervention] = {
