@@ -5,10 +5,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Lecture de la moyenne (en km/mois → km/jour)
   const getMoyenne = () => {
-    const txt = document.querySelector("#moyenne")?.textContent || "1";
-    const chiffre = txt.replace(/\s/g, '').match(/\d+(\.\d+)?/);
-    return chiffre ? parseFloat(chiffre[0]) / 30 : 1;  // Converti km/mois → km/jour
-  };
+  const txt = document.querySelector("#moyenne")?.textContent || "1";
+  const chiffre = txt.replace(/\s/g, '').match(/\d+(\.\d+)?/); // ex: "1489"
+  return chiffre ? parseFloat(chiffre[0]) / 30 : 1;  // Converti km/mois → km/jour
+};
+
 
   // Récupère le plus grand kilométrage de #table-kilometrages
   const getDernierKilometrage = () => {
