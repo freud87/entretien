@@ -142,43 +142,59 @@ function calculerPeriodes() {
 }
 
 async function calculerProchain() {
-  const lignes = Array.from(document.querySelectorAll("#table-historique tr"));
+  try {
+    const tbody = document.getElementById("table-historique");
+    const lignes = Array.from(tbody.querySelectorAll("tr"));
 
-  let planData = {};
-  const { data: plan, error } = await supabase
-    .from('Plan')
-    .select('intervention, cycle_km');
+    // Dictionnaire pour stocker le dernier kilométrage par intervention
+    const derniersKm = {};
 
-  if (error) {
-    console.error("Erreur Supabase :", error);
-    return;
+    // 1. Trouver le dernier kilométrage pour chaque type d'intervention
+    lignes.forEach((tr) => {
+      const tds = tr.querySelectorAll("td");
+
+      const intervention = tds[3].textContent.trim(); // Colonne Intervention
+      const kmText = tds[2].textContent.replace(/\s/g, ''); // Colonne Kilométrage
+      const kilometrage = parseInt(kmText, 10);
+
+      if (!isNaN(kilometrage)) {
+        if (!derniersKm[intervention] || kilometrage > derniersKm[intervention]) {
+          derniersKm[intervention] = kilometrage;
+        }
+      }
+    });
+
+    // 2. Récupérer les cycles kilométriques depuis la table Plan
+    const { data: planData, error } = await supabase
+      .from('plan')
+      .select('intervention, cycle_km');
+
+    if (error) throw error;
+
+    // Créer un dictionnaire rapide pour accéder aux cycles
+    const cycles = {};
+    planData.forEach(item => {
+      cycles[item.intervention] = item.cycle_km;
+    });
+
+    // 3. Mettre à jour la colonne "Prochain" dans chaque ligne
+    lignes.forEach((tr) => {
+      const tds = tr.querySelectorAll("td");
+      const intervention = tds[3].textContent.trim(); // Intervention
+      const tdProchain = tds[5]; // Prochain (6e colonne)
+
+      const dernierKm = derniersKm[intervention];
+      const cycleKm = cycles[intervention];
+
+      if (dernierKm && cycleKm) {
+        const prochainKm = dernierKm + cycleKm;
+        tdProchain.textContent = new Intl.NumberFormat('fr-FR').format(prochainKm);
+      } else {
+        tdProchain.textContent = "Aucune donnée";
+      }
+    });
+
+  } catch (error) {
+    console.error("Erreur lors du calcul du prochain kilométrage :", error);
   }
-
-  // Nettoyage et normalisation
-  plan.forEach(item => {
-    const key = item.intervention?.trim().toLowerCase();
-    if (key && item.cycle_km) {
-      planData[key] = item.cycle_km;
-    }
-  });
-
-  lignes.forEach(tr => {
-    const tds = tr.querySelectorAll("td");
-    if (tds.length >= 6) {
-      const intervention = tds[3]?.textContent.trim().toLowerCase();
-      const km = parseInt(tds[1]?.textContent.replace(/\s/g, ''), 10);
-      const periodicite = planData[intervention];
-
-      if (!periodicite) {
-        console.warn(`⛔ Périodicité manquante pour "${intervention}"`);
-        tds[5].textContent = '⚠️ périodicité manquante';
-        return;
-      }
-
-      if (!isNaN(km)) {
-        const prochainKm = km + periodicite;
-        tds[5].textContent = `${prochainKm.toLocaleString('fr-FR')} km`;
-      }
-    }
-  });
 }
