@@ -114,10 +114,10 @@ section {
       background-color: #F0F0F0;
 }
 /*gpt*/
-#history,
-#plan {
-  overflow-y: auto;        /* Ajoute une barre de défilement verticale si nécessaire */
-  max-height: 400px;       /* Hauteur maximale personnalisable selon votre besoin */
+#history table {
+  max-height: 300px; /* Ajustez selon vos besoins */
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 /*gpt*/
     table {
