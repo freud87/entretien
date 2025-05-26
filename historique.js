@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ1ZWppeXd5cmJubGZsenlhY291Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc2ODI1NDEsImV4cCI6MjA2MzI1ODU0MX0.MaMVpNzCWdiBufFzhd6RL4riLQQejTUG4FWd5cuHUd8';
   const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-  async function chargerKilometrages() {
+    async function chargerKilometrages() {
     try {
       const { data, error } = await supabase
         .from('historique')
@@ -19,33 +19,26 @@ document.addEventListener('DOMContentLoaded', async () => {
       data.forEach((item) => {
         const row = document.createElement('tr');
 
-        // Colonne ID (masquée)
         const tdId = document.createElement('td');
         tdId.textContent = item.id;
         tdId.classList.add('hidden');
 
-        // Colonne Date
         const tdDate = document.createElement('td');
         const dateObj = new Date(item.date);
         tdDate.textContent = dateObj.toLocaleDateString('fr-FR');
 
-        // Colonne Kilométrage
         const tdKm = document.createElement('td');
-        //tdKm.textContent = new Intl.NumberFormat('fr-FR').format(item.kilometrage);
         tdKm.textContent = item.kilometrage;
-        // Colonne Intervention
+
         const tdIntervention = document.createElement('td');
         tdIntervention.textContent = item.intervention;
 
-        // Colonne Remarque (vide au départ, remplie plus tard)
         const tdRemarque = document.createElement('td');
-        tdRemarque.textContent = ''; // vide pour être rempli ensuite
+        tdRemarque.textContent = '';
 
-        // Colonne Prochain (vide au départ, remplie plus tard)
         const tdProchain = document.createElement('td');
-        tdProchain.textContent = ''; // vide pour être rempli ensuite
+        tdProchain.textContent = '';
 
-        // Ajouter les cellules à la ligne
         row.appendChild(tdId);
         row.appendChild(tdDate);
         row.appendChild(tdKm);
@@ -53,15 +46,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         row.appendChild(tdRemarque);
         row.appendChild(tdProchain);
 
-        // Ajouter la ligne au tableau
         tbody.appendChild(row);
       });
 
-      // Calculer les remarques/prochain une fois le tableau rempli
       calculerPeriodes();
-      calculerProchain();
-      getNextIntervention();
-      
+      await calculerProchain();
+      calculerProchainEntretien(); // <== ajout ici
+
     } catch (error) {
       console.error('Erreur chargement kilométrages :', error);
     }
@@ -199,4 +190,67 @@ async function calculerProchain() {
   } catch (error) {
     console.error("Erreur lors du calcul du prochain kilométrage :", error);
   }
+}
+
+function calculerProchainEntretien() {
+  const moyenne = parseInt(document.getElementById('moyenne')?.textContent || 0);
+  if (!moyenne || moyenne <= 0) {
+    console.warn("Moyenne invalide.");
+    return;
+  }
+
+  const kmRows = Array.from(document.querySelectorAll('#table-kilometrages tr'));
+  const derniersKm = kmRows.map(row => parseInt(row.children[2]?.textContent || 0)).filter(km => !isNaN(km));
+  const kmActuel = Math.max(...derniersKm);
+
+  const histoRows = Array.from(document.querySelectorAll('#table-historique tr'));
+
+  let prochainEntretien = null;
+  let kmCible = Infinity;
+
+  histoRows.forEach(row => {
+    const prochain = parseInt(row.children[5]?.textContent || 0);
+    const intervention = row.children[3]?.textContent || '';
+    const dateIntervStr = row.children[1]?.textContent || '';
+
+    if (!isNaN(prochain) && prochain > kmActuel && prochain < kmCible) {
+      kmCible = prochain;
+      prochainEntretien = {
+        intervention,
+        kmProchain: prochain,
+        dateIntervStr
+      };
+    }
+  });
+
+  if (!prochainEntretien) {
+    console.log("Aucun entretien à prévoir au-dessus du kilométrage actuel.");
+    return;
+  }
+
+  const { intervention, kmProchain, dateIntervStr } = prochainEntretien;
+  const [jour, mois, annee] = dateIntervStr.split('/');
+  const dateBase = new Date(`${annee}-${mois}-${jour}`);
+  const ecartKm = kmProchain - kmActuel;
+  const ecartMois = ecartKm / moyenne;
+
+  const dateProchaine = new Date(dateBase);
+  dateProchaine.setMonth(dateProchaine.getMonth() + ecartMois);
+
+  const dateFormatee = dateProchaine.toLocaleDateString('fr-FR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric'
+  });
+
+  const tbodyProchain = document.getElementById('table-prochain');
+  tbodyProchain.innerHTML = '';
+
+  const row = document.createElement('tr');
+  row.innerHTML = `
+    <td>${intervention}</td>
+    <td>${kmProchain}</td>
+    <td>${dateFormatee}</td>
+  `;
+  tbodyProchain.appendChild(row);
 }
