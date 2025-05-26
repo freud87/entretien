@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         row.append(idCell, dateCell, kmCell);
         tbody.appendChild(row);
       });
-
+      calculerMoyenneKms();
     } catch (error) {
       console.error('Erreur de chargement:', error);
     }
@@ -129,3 +129,53 @@ btnSaveKm.addEventListener('click', async () => {
 
 
 });
+
+function calculerMoyenneKms() {
+  const tbody = document.getElementById('table-kilometrages');
+  const rows = tbody.querySelectorAll('tr');
+
+  let donnees = [];
+
+  rows.forEach(row => {
+    const tds = row.querySelectorAll('td');
+    if (tds.length >= 3) {
+      const dateText = tds[1].textContent.trim();
+      const kmText = tds[2].textContent.trim();
+
+      // Parser la date au format jj/mm/aaaa
+      const [jour, mois, annee] = dateText.split('/');
+      const date = new Date(annee, mois - 1, jour); // Mois commence à 0
+      const km = parseInt(kmText.replace(/\s+/g, ''), 10);
+
+      if (!isNaN(date.getTime()) && !isNaN(km)) {
+        donnees.push({ date, km });
+      }
+    }
+  });
+
+  if (donnees.length < 2) {
+    document.getElementById('moyenne').textContent = 'Données insuffisantes';
+    return;
+  }
+
+  // Trier les données par date
+  donnees.sort((a, b) => a.date - b.date);
+
+  const premiere = donnees[0];
+  const derniere = donnees[derniere.length - 1];
+
+  // Calcul de la différence en mois
+  const diffAnnees = derniere.date.getFullYear() - premiere.date.getFullYear();
+  const diffMois = (derniere.date.getMonth() - premiere.date.getMonth()) + diffAnnees * 12;
+  const differenceMois = diffMois + (derniere.date.getDate() >= premiere.date.getDate() ? 0 : -1);
+
+  if (differenceMois === 0) {
+    document.getElementById('moyenne').textContent = 'Période trop courte';
+    return;
+  }
+
+  const differenceKms = derniere.km - premiere.km;
+  const moyenne = Math.round(differenceKms / differenceMois);
+
+  document.getElementById('moyenne').textContent = `${moyenne}`;
+}
