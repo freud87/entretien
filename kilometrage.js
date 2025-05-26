@@ -132,26 +132,36 @@ btnSaveKm.addEventListener('click', async () => {
 
 function calculerMoyenneKms() {
   const tbody = document.getElementById('table-kilometrages');
+  if (!tbody) return; // Si le tableau n'existe pas
+  
   const rows = tbody.querySelectorAll('tr');
   let donnees = [];
+  
   rows.forEach(row => {
     const tds = row.querySelectorAll('td');
     if (tds.length >= 3) {
       const dateText = tds[1].textContent.trim();
       const kmText = tds[2].textContent.trim();
+      
       // Parser la date au format jj/mm/aaaa
-      const [jour, mois, annee] = dateText.split('/');
-      const date = new Date(annee, mois - 1, jour); // Mois commence à 0
-      const km = parseInt(kmText.replace(/\s+/g, ''), 10);
+      const dateParts = dateText.split('/');
+      if (dateParts.length === 3) {
+        const [jour, mois, annee] = dateParts;
+        const date = new Date(annee, mois - 1, jour);
+        const km = parseInt(kmText.replace(/\s+/g, ''), 10);
 
-      if (!isNaN(date.getTime()) && !isNaN(km)) {
-        donnees.push({ date, km });
+        if (!isNaN(date.getTime()) {
+          donnees.push({ date, km });
+        }
       }
     }
   });
 
   if (donnees.length < 2) {
-    document.getElementById('moyenne').textContent = 'Données insuffisantes';
+    const moyenneElement = document.getElementById('moyenne');
+    if (moyenneElement) {
+      moyenneElement.textContent = 'Données insuffisantes';
+    }
     return;
   }
 
@@ -159,20 +169,26 @@ function calculerMoyenneKms() {
   donnees.sort((a, b) => a.date - b.date);
 
   const premiere = donnees[0];
-  const derniere = donnees[derniere.length - 1];
+  const derniere = donnees[donnees.length - 1];
 
   // Calcul de la différence en mois
   const diffAnnees = derniere.date.getFullYear() - premiere.date.getFullYear();
   const diffMois = (derniere.date.getMonth() - premiere.date.getMonth()) + diffAnnees * 12;
   const differenceMois = diffMois + (derniere.date.getDate() >= premiere.date.getDate() ? 0 : -1);
 
-  if (differenceMois === 0) {
-    document.getElementById('moyenne').textContent = 'Période trop courte';
+  if (differenceMois <= 0) {
+    const moyenneElement = document.getElementById('moyenne');
+    if (moyenneElement) {
+      moyenneElement.textContent = 'Période trop courte';
+    }
     return;
   }
 
   const differenceKms = derniere.km - premiere.km;
   const moyenne = Math.round(differenceKms / differenceMois);
 
-  document.getElementById('moyenne').textContent = `${moyenne}`;
+  const moyenneElement = document.getElementById('moyenne');
+  if (moyenneElement) {
+    moyenneElement.textContent = `${moyenne.toLocaleString('fr-FR')} km/mois`;
+  }
 }
