@@ -8,6 +8,9 @@ html, body {
       height: calc(100vh - 16px); /* Prend toute la hauteur de la fenêtre moins les marges */
       overflow: hidden; /* Empêche le défilement global */
 }
+i {
+      cursor: pointer;
+}
 header {
       display: flex;
       justify-content: space-between;
