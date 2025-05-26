@@ -60,7 +60,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       // Calculer les remarques/prochain une fois le tableau rempli
       calculerPeriodes();
       calculerProchain();
-
+      getNextIntervention();
+      
     } catch (error) {
       console.error('Erreur chargement kilométrages :', error);
     }
