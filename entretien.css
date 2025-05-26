@@ -75,6 +75,39 @@ h2, h3 {
 #voiture{
       display: none;
 }
+#searchInput {
+    padding: 8px 12px;
+    border: 2px solid #264a7a; /* Même bordure que les sections */
+    border-radius: 8px; /* Coherence avec les autres éléments */
+    background-color: #fff; /* Fond blanc comme les tableaux */
+    color: #333; /* Couleur de texte standard */
+    font-size: 14px; /* Taille de police uniforme */
+    flex: 1; /* Pour occuper l'espace disponible */
+    margin-left: 10px; /* Espacement avec les icônes */
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1); /* Subtle inner shadow */
+    transition: all 0.3s ease; /* Animation fluide */
+}
+
+#searchInput:focus {
+    outline: none;
+    border-color: #f57c2c; /* Couleur orange des en-têtes au focus */
+    box-shadow: 0 0 0 2px rgba(245, 124, 44, 0.2); /* Légère lueur orange */
+}
+
+#searchInput::placeholder {
+    color: #999; /* Placeholder discret */
+    font-style: italic;
+}
+
+/* Pour l'icône de recherche à droite */
+#search {
+    color: #1a3a75; /* Bleu foncé comme les boutons */
+    font-size: 1.2rem;
+    /*margin-left: -35px; /* Superposition sur le champ */
+    position: relative;
+    z-index: 1;
+    /*pointer-events: none; /* Permet de cliquer à travers l'icône */
+}
 #search,
 #printhist {
       margin-right: 5px;
