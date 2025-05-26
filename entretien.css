@@ -121,6 +121,18 @@ section {
             overflow-y: auto; /* scroll si contenu déborde */
             min-height: 0; /* indispensable pour que flex et overflow fonctionnent bien */
 }
+/*///////////////////////////////////////////////////////////////
+section {
+
+  scrollbar-width: none;         /* Firefox */
+/*  -ms-overflow-style: none;      /* IE 10+ */
+
+  /* Chrome, Edge, Safari */
+}
+/*section::-webkit-scrollbar {
+  display: none;
+}
+////////////////////////////////////////////////////////////////*/
     table {
       width: 100%;
       border-collapse: collapse;
