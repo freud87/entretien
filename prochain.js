@@ -86,6 +86,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Pour déboguer : regarde ces valeurs dans la console
   console.log({ moyenne, dernierKms, prochaine });
+console.log("Moyenne :", moyenne);
+console.log("Dernier kilométrage relevé :", dernierKms);
+console.log("Intervention prochaine trouvée :", prochaine);
 
   updateTableProchain(prochaine, dernierKms, moyenne);
 });
