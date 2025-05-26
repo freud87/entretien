@@ -188,7 +188,8 @@ async function calculerProchain() {
 
       if (dernierKm && cycleKm) {
         const prochainKm = dernierKm + cycleKm;
-        tdProchain.textContent = new Intl.NumberFormat('fr-FR').format(prochainKm);
+       // tdProchain.textContent = new Intl.NumberFormat('fr-FR').format(prochainKm);
+        tdProchain.textContent = prochainKm;
       } else {
         tdProchain.textContent = "Aucune donnée";
       }
