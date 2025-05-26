@@ -133,15 +133,12 @@ btnSaveKm.addEventListener('click', async () => {
 function calculerMoyenneKms() {
   const tbody = document.getElementById('table-kilometrages');
   const rows = tbody.querySelectorAll('tr');
-
   let donnees = [];
-
   rows.forEach(row => {
     const tds = row.querySelectorAll('td');
     if (tds.length >= 3) {
       const dateText = tds[1].textContent.trim();
       const kmText = tds[2].textContent.trim();
-
       // Parser la date au format jj/mm/aaaa
       const [jour, mois, annee] = dateText.split('/');
       const date = new Date(annee, mois - 1, jour); // Mois commence à 0
