@@ -113,6 +113,13 @@ section {
       flex: 1;
       background-color: #F0F0F0;
 }
+/*gpt*/
+#history,
+#plan {
+  overflow-y: auto;        /* Ajoute une barre de défilement verticale si nécessaire */
+  max-height: 400px;       /* Hauteur maximale personnalisable selon votre besoin */
+}
+/*gpt*/
     table {
       width: 100%;
       border-collapse: collapse;
