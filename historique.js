@@ -144,48 +144,40 @@ function calculerPeriodes() {
 async function calculerProchain() {
   const lignes = Array.from(document.querySelectorAll("#table-historique tr"));
 
-  // 1. Charger le plan d’entretien depuis Supabase
   let planData = {};
-  try {
-    const { data: plan, error } = await supabase
-      .from('Plan')
-      .select('intervention, cycle_km');
+  const { data: plan, error } = await supabase
+    .from('Plan')
+    .select('intervention, cycle_km');
 
-    if (error) {
-      console.error("Erreur chargement du plan d'entretien :", error);
-      return;
-    }
-
-    // Créer un dictionnaire avec des noms d'interventions en minuscule
-    plan.forEach(item => {
-      const interventionKey = item.intervention?.trim().toLowerCase();
-      if (interventionKey && item.cycle_km) {
-        planData[interventionKey] = item.cycle_km;
-      }
-    });
-
-  } catch (err) {
-    console.error("Erreur inattendue lors du chargement du plan :", err);
+  if (error) {
+    console.error("Erreur Supabase :", error);
     return;
   }
 
-  // 2. Parcourir chaque ligne du tableau historique
+  // Nettoyage et normalisation
+  plan.forEach(item => {
+    const key = item.intervention?.trim().toLowerCase();
+    if (key && item.cycle_km) {
+      planData[key] = item.cycle_km;
+    }
+  });
+
   lignes.forEach(tr => {
     const tds = tr.querySelectorAll("td");
     if (tds.length >= 6) {
       const intervention = tds[3]?.textContent.trim().toLowerCase();
-      const kmStr = tds[2]?.textContent.replace(/\s/g, '');
-      const km = parseInt(kmStr, 10);
-
+      const km = parseInt(tds[1]?.textContent.replace(/\s/g, ''), 10);
       const periodicite = planData[intervention];
 
-      if (!isNaN(km) && periodicite) {
+      if (!periodicite) {
+        console.warn(`⛔ Périodicité manquante pour "${intervention}"`);
+        tds[5].textContent = '⚠️ périodicité manquante';
+        return;
+      }
+
+      if (!isNaN(km)) {
         const prochainKm = km + periodicite;
         tds[5].textContent = `${prochainKm.toLocaleString('fr-FR')} km`;
-      } else if (!periodicite) {
-        tds[5].textContent = '⚠️ périodicité manquante';
-      } else {
-        tds[5].textContent = ''; // Vide si kilométrage invalide
       }
     }
   });
