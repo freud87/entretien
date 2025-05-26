@@ -36,6 +36,9 @@ header h3 {
       flex-direction: column;
       height: 100%;
     }
+#plan {
+      display: none;
+}
 .right-panel {
       width: 30%;
       height: auto;
