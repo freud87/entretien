@@ -66,12 +66,12 @@ h2, h3 {
       justify-content: space-between;
       align-items: center;
 }
-    #histitle {
+#histitle {
       flex:1;
-    }
-    #voiture{
+}
+#voiture{
       display: none;
-    }
+}
 #search,
 #printhist {
       margin-right: 5px;
@@ -118,6 +118,8 @@ section {
       padding: 15px;
       flex: 1;
       background-color: #F0F0F0;
+            overflow-y: auto; /* scroll si contenu déborde */
+            min-height: 0; /* indispensable pour que flex et overflow fonctionnent bien */
 }
     table {
       width: 100%;
