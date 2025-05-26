@@ -112,6 +112,13 @@ section {
       padding: 15px;
       flex: 1;
       background-color: #F0F0F0;
+
+      overflow-y: auto; /* active un scroll vertical si nécessaire */
+}
+section table {
+  max-height: 100%;
+  overflow-y: auto;
+  display: block; /* rend le scroll possible à l’intérieur du tableau */
 }
     table {
       width: 100%;
