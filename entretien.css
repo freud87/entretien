@@ -152,17 +152,18 @@ th {
       background-color: #f4f7fb;
     }
 .prochain table td:nth-child(3),
-    #history table td:nth-child(2),
-    #plan table td:nth-child(5),
-    #table-kilometrages td:nth-child(2) {
+#history table td:nth-child(2),
+#plan table td:nth-child(5),
+#table-kilometrages td:nth-child(2) {
       text-align: center;
-    }
-    .prochain table td:nth-child(2),
-    #history table td:nth-child(3),
-    #plan table td:nth-child(4),
-    #table-kilometrages td:nth-child(3) {
+}
+.prochain table td:nth-child(2),
+#history table td:nth-child(3),
+#history table td:nth-child(6),
+#plan table td:nth-child(4),
+#table-kilometrages td:nth-child(3) {
       text-align: right;
-    }
+}
     #btn-add-km {
       cursor: pointer;
     }
