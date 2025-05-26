@@ -1,40 +1,41 @@
 document.addEventListener("DOMContentLoaded", () => {
-  /** Convertit "352 000" → 352000 */
+  // Convertit "352 000" → 352000
   const parseKilometrage = str =>
     parseInt(str.replace(/\s/g, '').replace(/[^0-9]/g, ''), 10);
 
-  /** Moyenne en km/jour lue dans <span id="moyenne"> */
+  // Lecture de la moyenne (en km/mois → km/jour)
   const getMoyenne = () => {
     const txt = document.querySelector("#moyenne")?.textContent || "1";
-    return parseFloat(txt.replace(',', '.')) || 1;   // évite /0
+    const chiffre = txt.replace(/\s/g, '').match(/\d+(\.\d+)?/);
+    return chiffre ? parseFloat(chiffre[0]) / 30 : 1;  // Converti km/mois → km/jour
   };
 
-  /** Dernier kilométrage saisi dans #table-kilometrages */
+  // Récupère le plus grand kilométrage de #table-kilometrages
   const getDernierKilometrage = () => {
     let max = 0;
     document.querySelectorAll("#table-kilometrages tbody tr").forEach(row => {
-      const cellKms = row.cells[2];          // 0=ID, 1=Date, 2=Kms
+      const cellKms = row.cells[2];
       if (!cellKms) return;
-      const kms = parseKilometrage(cellKms.textContent);
+      const raw = cellKms.textContent;
+      const kms = parseKilometrage(raw);
       if (kms > max) max = kms;
     });
     return max;
   };
 
-  /** Trouve l’intervention dont “PROCHAIN” est > dernierKms et la plus proche */
+  // Trouve la prochaine intervention pertinente
   const getProchaineIntervention = dernierKms => {
     let minDiff = Infinity;
     let best = null;
 
     document.querySelectorAll("#table-historique tbody tr").forEach(row => {
-      if (row.cells.length < 6) return;      // 6 colonnes attendues
+      if (row.cells.length < 6) return;
 
       const dateStr       = row.cells[1].textContent.trim();
       const kmsStr        = row.cells[2].textContent.trim();
       const intervention  = row.cells[3].textContent.trim();
-      const prochainStr   = row.cells[5].textContent.trim(); // PROCHAIN
+      const prochainStr   = row.cells[5].textContent.trim();
 
-      // Ignorer les “Aucune donnée”
       if (!prochainStr || prochainStr.toLowerCase().includes("aucune")) return;
 
       const prochainKms = parseKilometrage(prochainStr);
@@ -54,21 +55,24 @@ document.addEventListener("DOMContentLoaded", () => {
     return best;
   };
 
-  /** Remplit #table-prochain */
+  // Met à jour la table #table-prochain
   const updateTableProchain = (info, dernierKms, moyenne) => {
     const tbody = document.querySelector("#table-prochain tbody");
     if (!tbody) return;
     tbody.innerHTML = "";
 
     if (!info) {
-      tbody.innerHTML =
-        "<tr><td colspan='3'>Aucune intervention à prévoir</td></tr>";
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td colspan="3" style="color:red">⚠ Aucune intervention future trouvée</td>
+      `;
+      tbody.appendChild(row);
       return;
     }
 
     const diffKms     = info.prochainKms - dernierKms;
     const joursRest   = diffKms / moyenne;
-    const dateEstimee = new Date(Date.now() + joursRest * 86_400_000);
+    const dateEstimee = new Date(Date.now() + joursRest * 86400000);
 
     const tr = document.createElement("tr");
     tr.innerHTML = `
@@ -79,16 +83,11 @@ document.addEventListener("DOMContentLoaded", () => {
     tbody.appendChild(tr);
   };
 
-  /* ---- Lancement ---- */
-  const moyenne      = getMoyenne();              // km / jour
-  const dernierKms   = getDernierKilometrage();   // km actuel
-  const prochaine    = getProchaineIntervention(dernierKms);
+  // === EXÉCUTION ===
+  const moyenne     = getMoyenne();
+  const dernierKms  = getDernierKilometrage();
+  const prochaine   = getProchaineIntervention(dernierKms);
 
-  // Pour déboguer : regarde ces valeurs dans la console
   console.log({ moyenne, dernierKms, prochaine });
-console.log("Moyenne :", moyenne);
-console.log("Dernier kilométrage relevé :", dernierKms);
-console.log("Intervention prochaine trouvée :", prochaine);
-
   updateTableProchain(prochaine, dernierKms, moyenne);
 });
