@@ -113,13 +113,6 @@ section {
       flex: 1;
       background-color: #F0F0F0;
 }
-/*gpt*/
-#history table {
-  max-height: 300px; /* Ajustez selon vos besoins */
-  overflow-y: auto;
-  overflow-x: hidden;
-}
-/*gpt*/
     table {
       width: 100%;
       border-collapse: collapse;
