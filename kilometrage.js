@@ -5,7 +5,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Initialisation du client Supabase
   const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
   // Fonction pour charger les kilométrages
-  async function loadKilometrages() {
+
+async function loadKilometrages() {
   try {
     const { data, error } = await supabase
       .from('kilometrage')
@@ -17,11 +18,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     const tbody = document.getElementById('table-kilometrages');
     tbody.innerHTML = '';
 
-    // Pour le calcul
-    const kmParMois = new Map();
+    if (!data || data.length === 0) return;
 
+    // Affichage dans le tableau
     data.forEach(record => {
-      // Création de la ligne du tableau
       const row = document.createElement('tr');
 
       const idCell = document.createElement('td');
@@ -42,39 +42,37 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       row.append(idCell, dateCell, kmCell);
       tbody.appendChild(row);
+    });
 
-      // Clé: mois-année
-      const key = `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, '0')}`;
+    // === Calcul de la moyenne par mois ===
+    if (data.length >= 2) {
+      // Tri croissant (plus ancienne → plus récente)
+      const sorted = [...data].sort((a, b) => new Date(a.date) - new Date(b.date));
 
-      if (!kmParMois.has(key)) {
-        kmParMois.set(key, []);
+      const dateDebut = new Date(sorted[0].date);
+      const dateFin = new Date(sorted[sorted.length - 1].date);
+      const kmDebut = sorted[0].kilometrage;
+      const kmFin = sorted[sorted.length - 1].kilometrage;
+
+      const ecartKm = kmFin - kmDebut;
+
+      const moisDebut = dateDebut.getFullYear() * 12 + dateDebut.getMonth();
+      const moisFin = dateFin.getFullYear() * 12 + dateFin.getMonth();
+      const ecartMois = moisFin - moisDebut + (dateFin.getDate() - dateDebut.getDate()) / 30;
+
+      const moyenneMensuelle = ecartMois > 0 ? Math.round(ecartKm / ecartMois) : 0;
+
+      const spanMoyenne = document.getElementById('moyenne');
+      if (spanMoyenne) {
+        spanMoyenne.textContent = `${moyenneMensuelle.toLocaleString('fr-FR')} km/mois`;
       }
-
-      kmParMois.get(key).push(record.kilometrage);
-    });
-
-    // Calcul de la moyenne mensuelle
-    let totalMois = kmParMois.size;
-    let totalKm = 0;
-
-    kmParMois.forEach(kms => {
-      const somme = kms.reduce((acc, val) => acc + val, 0);
-      const moyenne = somme / kms.length;
-      totalKm += moyenne;
-    });
-
-    const moyenneMensuelle = totalMois > 0 ? Math.round(totalKm / totalMois) : 0;
-
-    // Affichage dans la span
-    const spanMoyenne = document.getElementById('moyenne');
-    if (spanMoyenne) {
-      spanMoyenne.textContent = `${moyenneMensuelle.toLocaleString('fr-FR')} km/mois`;
     }
 
   } catch (error) {
     console.error('Erreur de chargement:', error);
   }
 }
+
 
 
   // ✅ Appel initial
