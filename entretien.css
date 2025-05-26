@@ -113,11 +113,6 @@ section {
       flex: 1;
       background-color: #F0F0F0;
 }
-section table {
-  max-height: 100%;
-  overflow-y: auto;
-  display: block; /* rend le scroll possible à l’intérieur du tableau */
-}
     table {
       width: 100%;
       border-collapse: collapse;
