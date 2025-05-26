@@ -1,3 +1,6 @@
+document.addEventListener("DOMContentLoaded", () => {
+
+
 function parseKilometrage(str) {
   return parseInt(str.replace(/\s/g, '').replace(/[^0-9]/g, ''), 10);
 }
@@ -72,3 +75,4 @@ const moyenne = getMoyenne();
 const dernierKms = getDernierKilometrage();
 const prochaineIntervention = getProchaineIntervention(dernierKms);
 updateTableProchain(prochaineIntervention, dernierKms, moyenne);
+});
