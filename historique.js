@@ -31,8 +31,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         // Colonne Kilométrage
         const tdKm = document.createElement('td');
-        tdKm.textContent = new Intl.NumberFormat('fr-FR').format(item.kilometrage);
-
+        //tdKm.textContent = new Intl.NumberFormat('fr-FR').format(item.kilometrage);
+        tdKm.textContent = item.kilometrage;
         // Colonne Intervention
         const tdIntervention = document.createElement('td');
         tdIntervention.textContent = item.intervention;
