@@ -26,10 +26,6 @@ header h3 {
       flex: 1;
       display: flex;
       justify-content: space-between;
-          /*flex: 1;
-          display: flex;
-          gap: 10px;*/
-          overflow: hidden; /* Empêche le scroll global */
     }
 
     .left-panel {
@@ -37,7 +33,6 @@ header h3 {
       display: flex;
       flex-direction: column;
       height: 100%;
-         /* overflow: hidden; /* Important pour contenir le scroll interne */
     }
 .right-panel {
       width: 30%;
@@ -51,7 +46,6 @@ header h3 {
       padding: 15px;
       background-color: #F0F0F0;
       position: relative;
-            overflow: hidden; /* Important pour contenir le scroll interne */
 }
 .right-panel img {
       position: absolute;
@@ -119,24 +113,6 @@ section {
       flex: 1;
       background-color: #F0F0F0;
 }
-/*qwen*/
-#history,
-#plan {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  margin: 0;
-}
-#history table,
-#plan table,
-.right-panel table {
-  flex: 1;
-  /*max-height: calc(100vh - 300px); /* Ajustez selon la hauteur du reste */
-  overflow-y: auto;
-  /*display: block;*/
-}
-/*qwen*/
     table {
       width: 100%;
       border-collapse: collapse;
