@@ -1,94 +1,67 @@
-document.addEventListener("DOMContentLoaded", () => {
-  // Convertit "352 000" → 352000
-  const parseKilometrage = str =>
-    parseInt(str.replace(/\s/g, '').replace(/[^0-9]/g, ''), 10);
 
-  // Lecture de la moyenne (en km/mois → km/jour)
-  const getMoyenne = () => {
-  const txt = document.querySelector("#moyenne")?.textContent || "1";
-  const chiffre = txt.replace(/\s/g, '').match(/\d+(\.\d+)?/); // ex: "1489"
-  return chiffre ? parseFloat(chiffre[0]) / 30 : 1;  // Converti km/mois → km/jour
-};
-
-
-  // Récupère le plus grand kilométrage de #table-kilometrages
-  const getDernierKilometrage = () => {
-    let max = 0;
-    document.querySelectorAll("#table-kilometrages tbody tr").forEach(row => {
-      const cellKms = row.cells[2];
-      if (!cellKms) return;
-      const raw = cellKms.textContent;
-      const kms = parseKilometrage(raw);
-      if (kms > max) max = kms;
+  function getLastKilometrage() {
+    const rows = document.querySelectorAll("#table-kilometrages tbody tr");
+    let maxKm = 0;
+    rows.forEach(row => {
+      const km = parseFloat(row.cells[2].textContent);
+      if (!isNaN(km) && km > maxKm) maxKm = km;
     });
-    return max;
-  };
+    return maxKm;
+  }
 
-  // Trouve la prochaine intervention pertinente
-  const getProchaineIntervention = dernierKms => {
+  function parseDateFrToJs(dateStr) {
+    // Supporte le format JJ/MM/AAAA
+    const [day, month, year] = dateStr.split('/');
+    return new Date(`${year}-${month}-${day}`);
+  }
+
+  function formatDateJsToFr(dateObj) {
+    return dateObj.toLocaleDateString('fr-FR');
+  }
+
+  function getNextIntervention() {
+    const moyenne = parseFloat(document.getElementById("moyenne").textContent);
+    if (isNaN(moyenne) || moyenne <= 0) return;
+
+    const lastKm = getLastKilometrage();
+    const rows = document.querySelectorAll("#table-historique tbody tr");
+
+    let closestRow = null;
     let minDiff = Infinity;
-    let best = null;
 
-    document.querySelectorAll("#table-historique tbody tr").forEach(row => {
-      if (row.cells.length < 6) return;
-
-      const dateStr       = row.cells[1].textContent.trim();
-      const kmsStr        = row.cells[2].textContent.trim();
-      const intervention  = row.cells[3].textContent.trim();
-      const prochainStr   = row.cells[5].textContent.trim();
-
-      if (!prochainStr || prochainStr.toLowerCase().includes("aucune")) return;
-
-      const prochainKms = parseKilometrage(prochainStr);
-      const diff        = prochainKms - dernierKms;
-
-      if (diff > 0 && diff < minDiff) {
-        minDiff = diff;
-        best = {
-          intervention,
-          prochainKms,
-          dateIntervention: new Date(dateStr),
-          kmsIntervention: parseKilometrage(kmsStr)
-        };
+    rows.forEach(row => {
+      const prochainKm = parseFloat(row.cells[5].textContent); // "Prochain"
+      if (!isNaN(prochainKm) && prochainKm > lastKm) {
+        const diff = prochainKm - lastKm;
+        if (diff < minDiff) {
+          minDiff = diff;
+          closestRow = row;
+        }
       }
     });
 
-    return best;
-  };
+    if (!closestRow) return;
 
-  // Met à jour la table #table-prochain
-  const updateTableProchain = (info, dernierKms, moyenne) => {
+    const intervention = closestRow.cells[3].textContent;
+    const prochainKm = parseFloat(closestRow.cells[5].textContent);
+    const dateIntervention = parseDateFrToJs(closestRow.cells[1].textContent); // "Date"
+    const joursRestants = Math.round((prochainKm - lastKm) / moyenne);
+    const dateApprox = new Date(dateIntervention);
+    dateApprox.setDate(dateApprox.getDate() + joursRestants);
+
+    // Injection dans #table-prochain
     const tbody = document.querySelector("#table-prochain tbody");
-    if (!tbody) return;
-    tbody.innerHTML = "";
-
-    if (!info) {
-      const row = document.createElement("tr");
-      row.innerHTML = `
-        <td colspan="3" style="color:red">⚠ Aucune intervention future trouvée</td>
-      `;
-      tbody.appendChild(row);
-      return;
-    }
-
-    const diffKms     = info.prochainKms - dernierKms;
-    const joursRest   = diffKms / moyenne;
-    const dateEstimee = new Date(Date.now() + joursRest * 86400000);
-
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${info.intervention}</td>
-      <td>${info.prochainKms.toLocaleString()} km</td>
-      <td>${dateEstimee.toLocaleDateString()}</td>
+    tbody.innerHTML = `
+      <tr>
+        <td>${intervention}</td>
+        <td>${prochainKm}</td>
+        <td>${formatDateJsToFr(dateApprox)}</td>
+      </tr>
     `;
-    tbody.appendChild(tr);
-  };
+  }
 
-  // === EXÉCUTION ===
-  const moyenne     = getMoyenne();
-  const dernierKms  = getDernierKilometrage();
-  const prochaine   = getProchaineIntervention(dernierKms);
+  // Lancer la fonction après chargement du DOM
+  document.addEventListener("DOMContentLoaded", getNextIntervention);
 
-  console.log({ moyenne, dernierKms, prochaine });
-  updateTableProchain(prochaine, dernierKms, moyenne);
-});
+
+
