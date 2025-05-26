@@ -26,6 +26,8 @@ header h3 {
       flex: 1;
       display: flex;
       justify-content: space-between;
+          overflow: hidden;      /* Empêche le débordement vertical */
+          min-height: 0;         /* Important pour que le scroll fonctionne dans les enfants */
     }
 
     .left-panel {
