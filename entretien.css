@@ -112,8 +112,6 @@ section {
       padding: 15px;
       flex: 1;
       background-color: #F0F0F0;
-
-      overflow-y: auto; /* active un scroll vertical si nécessaire */
 }
 section table {
   max-height: 100%;
