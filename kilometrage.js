@@ -64,7 +64,7 @@ async function loadKilometrages() {
 
       const spanMoyenne = document.getElementById('moyenne');
       if (spanMoyenne) {
-        spanMoyenne.textContent = `${moyenneMensuelle.toLocaleString('fr-FR')} kms/mois`;
+        spanMoyenne.textContent = `${moyenneMensuelle.toLocaleString('fr-FR')}`;
       }
     }
 
