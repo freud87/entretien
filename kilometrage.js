@@ -6,38 +6,76 @@ document.addEventListener('DOMContentLoaded', async () => {
   const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
   // Fonction pour charger les kilométrages
   async function loadKilometrages() {
-    try {
-      const { data, error } = await supabase
-        .from('kilometrage')
-        .select('id, date, kilometrage')
-        .order('date', { ascending: false });
-      if (error) throw error;
-      const tbody = document.getElementById('table-kilometrages');
-      tbody.innerHTML = '';
-      data.forEach(record => {
-        const row = document.createElement('tr');
-        const idCell = document.createElement('td');
-        idCell.className = 'hidden';
-        idCell.textContent = record.id
-          const dateCell = document.createElement('td');
-        const formattedDate = new Date(record.date).toLocaleDateString('fr-FR', {
-          day: '2-digit',
-          month: '2-digit',
-          year: 'numeric'
-        });
-        dateCell.textContent = formattedDate;
+  try {
+    const { data, error } = await supabase
+      .from('kilometrage')
+      .select('id, date, kilometrage')
+      .order('date', { ascending: false });
 
-        const kmCell = document.createElement('td');
-        kmCell.textContent = new Intl.NumberFormat('fr-FR').format(record.kilometrage);
+    if (error) throw error;
 
-        row.append(idCell, dateCell, kmCell);
-        tbody.appendChild(row);
+    const tbody = document.getElementById('table-kilometrages');
+    tbody.innerHTML = '';
+
+    // Pour le calcul
+    const kmParMois = new Map();
+
+    data.forEach(record => {
+      // Création de la ligne du tableau
+      const row = document.createElement('tr');
+
+      const idCell = document.createElement('td');
+      idCell.className = 'hidden';
+      idCell.textContent = record.id;
+
+      const dateCell = document.createElement('td');
+      const dateObj = new Date(record.date);
+      const formattedDate = dateObj.toLocaleDateString('fr-FR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
       });
+      dateCell.textContent = formattedDate;
 
-    } catch (error) {
-      console.error('Erreur de chargement:', error);
+      const kmCell = document.createElement('td');
+      kmCell.textContent = new Intl.NumberFormat('fr-FR').format(record.kilometrage);
+
+      row.append(idCell, dateCell, kmCell);
+      tbody.appendChild(row);
+
+      // Clé: mois-année
+      const key = `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, '0')}`;
+
+      if (!kmParMois.has(key)) {
+        kmParMois.set(key, []);
+      }
+
+      kmParMois.get(key).push(record.kilometrage);
+    });
+
+    // Calcul de la moyenne mensuelle
+    let totalMois = kmParMois.size;
+    let totalKm = 0;
+
+    kmParMois.forEach(kms => {
+      const somme = kms.reduce((acc, val) => acc + val, 0);
+      const moyenne = somme / kms.length;
+      totalKm += moyenne;
+    });
+
+    const moyenneMensuelle = totalMois > 0 ? Math.round(totalKm / totalMois) : 0;
+
+    // Affichage dans la span
+    const spanMoyenne = document.getElementById('moyenne');
+    if (spanMoyenne) {
+      spanMoyenne.textContent = `${moyenneMensuelle.toLocaleString('fr-FR')} km/mois`;
     }
+
+  } catch (error) {
+    console.error('Erreur de chargement:', error);
   }
+}
+
 
   // ✅ Appel initial
   await loadKilometrages();
