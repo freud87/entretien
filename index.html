@@ -36,9 +36,9 @@
       <section id="history">
         <h2>
           <span id="histitle">Historique des entretiens<span id="voiture"></br>Voiture de service n° 22-349194</span></span>
+          <input type="text" id="searchInput" class="form-control" placeholder="Rechercher...">
           <i id="search" class="bi bi-search"></i>
           <i id="printhist" class="bi bi-printer"></i>
-          <i class="bi bi-filetype-pdf"></i>
         </h2>
         <table>
           <thead>
@@ -103,6 +103,14 @@
         <script src="plan.js"></script>
         <script src="historique.js"></script>
         <!-- <script src="prochain.js"></script> -->
-
+        <script>
+        // Fonction de recherche ultra-simplifiée
+        document.getElementById('searchInput').addEventListener('input', function() {
+          const search = this.value.toLowerCase();
+          document.querySelectorAll('#table-historique tr').forEach(row => {
+            row.style.display = row.textContent.toLowerCase().includes(search) ? '' : 'none';
+          });
+        });
+        </script>
 </body>
 </html>
