@@ -5,32 +5,51 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   async function chargerKilometrages() {
     try {
+      // Charger historique
       const { data: historiqueData, error: historiqueError } = await supabase
         .from('historique')
         .select('id, date, kilometrage, intervention')
         .order('date', { ascending: false });
 
-      if (historiqueError) throw historiqueError;
+      if (historiqueError) {
+        console.error("Erreur historique :", historiqueError);
+        alert("Erreur : Impossible de charger l'historique");
+        return;
+      }
 
+      // Charger plan
       const { data: planData, error: planError } = await supabase
         .from('plan')
         .select('intervention, cycle_km');
 
-      if (planError) throw planError;
+      if (planError) {
+        console.error("Erreur plan :", planError);
+        alert("Erreur : Impossible de charger les cycles");
+        return;
+      }
 
+      // Lire la moyenne
       const moyenneElement = document.getElementById('moyenne');
       const moyenne = parseFloat(moyenneElement?.value);
-      if (isNaN(moyenne)) throw new Error("Valeur moyenne invalide");
+      if (!moyenne || isNaN(moyenne)) {
+        console.error("Valeur moyenne invalide !");
+        return;
+      }
 
       const tbody = document.getElementById('table-historique');
       tbody.innerHTML = '';
 
       if (!historiqueData || historiqueData.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6">Aucune donnée disponible</td></tr>`;
+        const row = document.createElement('tr');
+        const cell = document.createElement('td');
+        cell.colSpan = 6;
+        cell.textContent = "Aucune donnée disponible";
+        row.appendChild(cell);
+        tbody.appendChild(row);
         return;
       }
 
-      historiqueData.forEach(item => {
+      historiqueData.forEach((item) => {
         const row = document.createElement('tr');
 
         const tdId = document.createElement('td');
@@ -38,7 +57,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         tdId.classList.add('hidden');
 
         const tdDate = document.createElement('td');
-        const parts = item.date.split('-'); // yyyy-mm-dd depuis Supabase
+        const parts = item.date.split('-'); // Format YYYY-MM-DD
         const dateObj = new Date(parts[0], parts[1] - 1, parts[2]);
         tdDate.textContent = dateObj.toLocaleDateString('fr-FR');
 
@@ -52,25 +71,36 @@ document.addEventListener('DOMContentLoaded', async () => {
         const tdProchaindate = document.createElement('td');
 
         const planItem = planData.find(p => p.intervention === item.intervention);
+
         if (planItem && !isNaN(item.kilometrage)) {
-          const cycle_km = parseFloat(planItem.cycle_km);
-          const prochainKms = item.kilometrage + cycle_km;
+          const cycleKm = parseFloat(planItem.cycle_km);
+          const kilometrage = parseFloat(item.kilometrage);
+
+          const prochainKms = kilometrage + cycleKm;
           tdProchainkms.textContent = prochainKms.toLocaleString('fr-FR');
 
-          // Calcul date prochaine
-          const joursAjoutes = Math.round((cycle_km / moyenne) * 30);
-          const prochainDate = new Date(dateObj); // Clone
+          const joursAjoutes = Math.round((cycleKm / moyenne) * 30);
+          const prochainDate = new Date(dateObj);
           prochainDate.setDate(prochainDate.getDate() + joursAjoutes);
           tdProchaindate.textContent = prochainDate.toLocaleDateString('fr-FR');
+        } else {
+          tdProchainkms.textContent = '';
+          tdProchaindate.textContent = '';
         }
 
-        row.append(tdId, tdDate, tdKm, tdIntervention, tdProchainkms, tdProchaindate);
+        row.appendChild(tdId);
+        row.appendChild(tdDate);
+        row.appendChild(tdKm);
+        row.appendChild(tdIntervention);
+        row.appendChild(tdProchainkms);
+        row.appendChild(tdProchaindate);
+
         tbody.appendChild(row);
       });
 
     } catch (error) {
-      console.error('Erreur :', error);
-      alert("Une erreur est survenue.");
+      console.error('Erreur générale :', error);
+      alert("Une erreur inattendue est survenue.");
     }
   }
 
