@@ -1,22 +1,44 @@
+
 document.addEventListener('DOMContentLoaded', async () => {
   // Configuration Supabase
-  const supabaseUrl = 'https://ruejiywyrbnlflzyacou.supabase.co';
+  const supabaseUrl = 'https://ruejiywyrbnlflzyacou.supabase.co ';
   const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ1ZWppeXd5cmJubGZsenlhY291Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc2ODI1NDEsImV4cCI6MjA2MzI1ODU0MX0.MaMVpNzCWdiBufFzhd6RL4riLQQejTUG4FWd5cuHUd8';
   const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-    async function chargerKilometrages() {
+  // Charger les données historiques
+  async function chargerKilometrages() {
     try {
-      const { data, error } = await supabase
+      const { data: historiqueData, error: historiqueError } = await supabase
         .from('historique')
         .select('id, date, kilometrage, intervention')
         .order('date', { ascending: false });
 
-      if (error) throw error;
+      if (historiqueError) throw historiqueError;
 
+      // Récupérer les cycles depuis la table plan
+      const { data: planData, error: planError } = await supabase
+        .from('plan')
+        .select('intervention, cycle_km');
+
+      if (planError) throw planError;
+
+      // Récupérer la moyenne depuis le DOM
+      const moyenneElement = document.getElementById('moyenne');
+      if (!moyenneElement) {
+        console.error("Élément #moyenne introuvable");
+        return;
+      }
+      const moyenne = parseFloat(moyenneElement.value);
+      if (isNaN(moyenne)) {
+        console.error("La valeur de #moyenne n'est pas valide");
+        return;
+      }
+
+      // Remplir le tableau
       const tbody = document.getElementById('table-historique');
       tbody.innerHTML = '';
 
-      data.forEach((item) => {
+      historiqueData.forEach((item) => {
         const row = document.createElement('tr');
 
         const tdId = document.createElement('td');
@@ -34,12 +56,22 @@ document.addEventListener('DOMContentLoaded', async () => {
         tdIntervention.textContent = item.intervention;
 
         const tdProchainkms = document.createElement('td');
-        tdProchainkms.textContent = '';
-        
         const tdProchaindate = document.createElement('td');
-        tdProchaindate.textContent = '';
 
-       
+        // Trouver le cycle_km correspondant
+        const planItem = planData.find(p => p.intervention === item.intervention);
+        if (planItem && !isNaN(item.kilometrage)) {
+          const cycle_km = planItem.cycle_km;
+          const prochainKms = item.kilometrage + cycle_km;
+          tdProchainkms.textContent = prochainKms;
+
+          // Calcul de la date
+          const date = new Date(item.date);
+          const joursAjoutes = Math.round((cycle_km / moyenne) * 30);
+          const prochainDate = new Date(date);
+          prochainDate.setDate(prochainDate.getDate() + joursAjoutes);
+          tdProchaindate.textContent = prochainDate.toLocaleDateString('fr-FR');
+        }
 
         row.appendChild(tdId);
         row.appendChild(tdDate);
@@ -50,14 +82,14 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         tbody.appendChild(row);
       });
-
     } catch (error) {
-      console.error('Erreur chargement kilométrages :', error);
+      console.error('Erreur lors du chargement des données :', error);
     }
   }
 
   await chargerKilometrages();
 });
+
 
 
 
