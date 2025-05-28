@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       // Lire la moyenne
       const moyenneElement = document.getElementById('moyenne');
-      const moyenne = parseFloat(moyenneElement?.value);
+      const moyenne = parseFloat(moyenneElement?.textContent);
       if (!moyenne || isNaN(moyenne)) {
         console.error("Valeur moyenne invalide !");
         return;
