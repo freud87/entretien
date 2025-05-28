@@ -1,56 +1,78 @@
 document.addEventListener('DOMContentLoaded', async () => {
   const supabaseUrl = 'https://ruejiywyrbnlflzyacou.supabase.co';
-  const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ1ZWppeXd5cmJubGZsenlhY291Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc2ODI1NDEsImV4cCI6MjA2MzI1ODU0MX0.MaMVpNzCWdiBufFzhd6RL4riLQQejTUG4FWd5cuHUd8';
+  const supabaseKey = 'eyJhbGciOi...'; // Clé inchangée
   const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
+  async function chargerKilometrages() {
+    try {
+      const { data: historiqueData, error: historiqueError } = await supabase
+        .from('historique')
+        .select('id, date, kilometrage, intervention')
+        .order('date', { ascending: false });
 
+      if (historiqueError) throw historiqueError;
 
-    const moyenne = parseFloat(document.getElementById('moyenne').value);
+      const { data: planData, error: planError } = await supabase
+        .from('plan')
+        .select('intervention, cycle_km');
 
-    // Charger les données
-    const { data: historique, error: error1 } = await supabase
-      .from('historique')
-      .select('*')
-      .order('date', { ascending: false });
+      if (planError) throw planError;
 
-    const { data: plan, error: error2 } = await supabase
-      .from('plan')
-      .select('*');
+      const moyenneElement = document.getElementById('moyenne');
+      const moyenne = parseFloat(moyenneElement?.value);
+      if (isNaN(moyenne)) throw new Error("Valeur moyenne invalide");
 
-    if (error1 || error2) {
-      console.error('Erreur de chargement :', error1 || error2);
-      return;
-    }
+      const tbody = document.getElementById('table-historique');
+      tbody.innerHTML = '';
 
-    const tbody = document.getElementById('table-historique');
-    tbody.innerHTML = '';
-
-    historique.forEach(item => {
-      const row = document.createElement('tr');
-
-      const idCell = `<td class="hidden">${item.id}</td>`;
-      const dateCell = `<td>${new Date(item.date).toLocaleDateString('fr-FR')}</td>`;
-      const kmCell = `<td>${item.kilometrage}</td>`;
-      const interventionCell = `<td>${item.intervention}</td>`;
-
-      // Trouver le cycle de l'intervention
-      const planItem = plan.find(p => p.intervention === item.intervention);
-      let prochainKmCell = '<td>-</td>';
-      let prochaineDateCell = '<td>-</td>';
-
-      if (planItem && item.kilometrage) {
-        const cycle_km = parseFloat(planItem.cycle_km);
-        const prochainKm = item.kilometrage + cycle_km;
-        const jours = Math.round(cycle_km / moyenne);
-
-        const prochaineDate = new Date(item.date);
-        prochaineDate.setDate(prochaineDate.getDate() + jours);
-
-        prochainKmCell = `<td>${prochainKm.toLocaleString('fr-FR')}</td>`;
-        prochaineDateCell = `<td>${prochaineDate.toLocaleDateString('fr-FR')}</td>`;
+      if (!historiqueData || historiqueData.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6">Aucune donnée disponible</td></tr>`;
+        return;
       }
 
-      row.innerHTML = idCell + dateCell + kmCell + interventionCell + prochainKmCell + prochaineDateCell;
-      tbody.appendChild(row);
-    });
-  });
+      historiqueData.forEach(item => {
+        const row = document.createElement('tr');
+
+        const tdId = document.createElement('td');
+        tdId.textContent = item.id;
+        tdId.classList.add('hidden');
+
+        const tdDate = document.createElement('td');
+        const parts = item.date.split('-'); // yyyy-mm-dd depuis Supabase
+        const dateObj = new Date(parts[0], parts[1] - 1, parts[2]);
+        tdDate.textContent = dateObj.toLocaleDateString('fr-FR');
+
+        const tdKm = document.createElement('td');
+        tdKm.textContent = item.kilometrage;
+
+        const tdIntervention = document.createElement('td');
+        tdIntervention.textContent = item.intervention;
+
+        const tdProchainkms = document.createElement('td');
+        const tdProchaindate = document.createElement('td');
+
+        const planItem = planData.find(p => p.intervention === item.intervention);
+        if (planItem && !isNaN(item.kilometrage)) {
+          const cycle_km = parseFloat(planItem.cycle_km);
+          const prochainKms = item.kilometrage + cycle_km;
+          tdProchainkms.textContent = prochainKms.toLocaleString('fr-FR');
+
+          // Calcul date prochaine
+          const joursAjoutes = Math.round((cycle_km / moyenne) * 30);
+          const prochainDate = new Date(dateObj); // Clone
+          prochainDate.setDate(prochainDate.getDate() + joursAjoutes);
+          tdProchaindate.textContent = prochainDate.toLocaleDateString('fr-FR');
+        }
+
+        row.append(tdId, tdDate, tdKm, tdIntervention, tdProchainkms, tdProchaindate);
+        tbody.appendChild(row);
+      });
+
+    } catch (error) {
+      console.error('Erreur :', error);
+      alert("Une erreur est survenue.");
+    }
+  }
+
+  await chargerKilometrages();
+});
