@@ -1,112 +1,104 @@
 document.addEventListener('DOMContentLoaded', async () => {
-  // Configuration Supabase (à déplacer dans des variables d'environnement en production)
   const supabaseUrl = 'https://ruejiywyrbnlflzyacou.supabase.co';
   const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ1ZWppeXd5cmJubGZsenlhY291Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc2ODI1NDEsImV4cCI6MjA2MzI1ODU0MX0.MaMVpNzCWdiBufFzhd6RL4riLQQejTUG4FWd5cuHUd8';
-  
-  // Initialisation du client Supabase
   const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
   async function chargerKilometrages() {
     try {
-      // Vérification de l'élément cible
-      const tbody = document.getElementById('table-historique');
-      if (!tbody) {
-        console.error("Élément #table-historique introuvable !");
-        return;
-      }
-
-      // Chargement de l'historique
+      // Charger historique
       const { data: historiqueData, error: historiqueError } = await supabase
         .from('historique')
         .select('id, date, kilometrage, intervention')
         .order('date', { ascending: false });
 
       if (historiqueError) {
-        throw new Error(`Erreur historique: ${historiqueError.message}`);
+        console.error("Erreur lors de la récupération de 'historique' :", historiqueError);
+        alert("Erreur : Impossible de charger l'historique");
+        return;
       }
 
-      // Chargement du plan d'entretien
+      // Charger plan
       const { data: planData, error: planError } = await supabase
         .from('plan')
         .select('intervention, cycle_km');
 
       if (planError) {
-        throw new Error(`Erreur plan: ${planError.message}`);
+        console.error("Erreur lors de la récupération de 'plan' :", planError);
+        alert("Erreur : Impossible de charger les cycles");
+        return;
       }
 
-      // Récupération de la moyenne kilométrique
+      // Récupérer #moyenne
       const moyenneElement = document.getElementById('moyenne');
-      const moyenne = moyenneElement ? parseFloat(moyenneElement.value) : 0;
-      if (isNaN(moyenne) || moyenne <= 0) {
-        console.warn("Valeur de moyenne invalide, utilisation de 30 par défaut");
-        moyenne = 30; // Valeur par défaut raisonnable
+      if (!moyenneElement) {
+        console.error("Élément #moyenne introuvable !");
+        return;
+      }
+      const moyenne = parseFloat(moyenneElement.value);
+      if (isNaN(moyenne)) {
+        console.error("La valeur de #moyenne n'est pas valide !");
+        return;
       }
 
-      // Construction du tableau
+      // Remplir le tableau
+      const tbody = document.getElementById('table-historique');
+      if (!tbody) {
+        console.error("tbody introuvable !");
+        return;
+      }
+
       tbody.innerHTML = '';
 
-      if (!historiqueData?.length) {
+      if (!historiqueData || historiqueData.length === 0) {
         const row = document.createElement('tr');
-        row.innerHTML = '<td colspan="6">Aucune donnée disponible</td>';
+        const cell = document.createElement('td');
+        cell.colSpan = 6;
+        cell.textContent = "Aucune donnée disponible";
+        row.appendChild(cell);
         tbody.appendChild(row);
         return;
       }
 
-      historiqueData.forEach(item => {
+      historiqueData.forEach((item) => {
         const row = document.createElement('tr');
-        
-        // Colonne ID (cachée)
+
         const tdId = document.createElement('td');
         tdId.textContent = item.id;
         tdId.classList.add('hidden');
-        row.appendChild(tdId);
 
-        // Colonne Date
         const tdDate = document.createElement('td');
-        tdDate.textContent = new Date(item.date).toLocaleDateString('fr-FR');
-        row.appendChild(tdDate);
+        const dateObj = new Date(item.date);
+        tdDate.textContent = dateObj.toLocaleDateString('fr-FR');
 
-        // Colonne Kilométrage
         const tdKm = document.createElement('td');
-        tdKm.textContent = item.kilometrage ?? 'N/A';
-        row.appendChild(tdKm);
+        tdKm.textContent = item.kilometrage;
 
-        // Colonne Intervention
         const tdIntervention = document.createElement('td');
-        tdIntervention.textContent = item.intervention ?? 'Non spécifiée';
-        row.appendChild(tdIntervention);
+        tdIntervention.textContent = item.intervention;
 
-        // Colonne Prochain kilométrage
         const tdProchainkms = document.createElement('td');
-        // Colonne Prochaine date
         const tdProchaindate = document.createElement('td');
 
-        if (item.kilometrage && !isNaN(item.kilometrage)) {
-          const planItem = planData?.find(p => p.intervention === item.intervention);
-          
-          if (planItem) {
-            // Calcul prochain kilométrage
-            const prochainKms = Number(item.kilometrage) + Number(planItem.cycle_km);
-            tdProchainkms.textContent = prochainKms;
+        const planItem = planData.find(p => p.intervention === item.intervention);
+        if (planItem && !isNaN(parseFloat(item.kilometrage))) {
+          const cycle_km = parseFloat(planItem.cycle_km);
+          const currentKm = parseFloat(item.kilometrage);
+          const prochainKms = currentKm + cycle_km;
+          tdProchainkms.textContent = prochainKms.toLocaleString('fr-FR');
 
-            // Calcul prochaine date
-            if (moyenne > 0) {
-              const date = new Date(item.date);
-              const joursAjoutes = Math.round((planItem.cycle_km / moyenne) * 30);
-              date.setDate(date.getDate() + joursAjoutes);
-              tdProchaindate.textContent = date.toLocaleDateString('fr-FR');
-            } else {
-              tdProchaindate.textContent = 'N/A';
-            }
-          } else {
-            tdProchainkms.textContent = 'Cycle inconnu';
-            tdProchaindate.textContent = 'N/A';
-          }
+          const joursAjoutes = Math.round((cycle_km / moyenne) * 30);
+          const prochainDate = new Date(dateObj);
+          prochainDate.setDate(prochainDate.getDate() + joursAjoutes);
+          tdProchaindate.textContent = prochainDate.toLocaleDateString('fr-FR');
         } else {
-          tdProchainkms.textContent = 'Km invalide';
-          tdProchaindate.textContent = 'N/A';
+          tdProchainkms.textContent = '-';
+          tdProchaindate.textContent = '-';
         }
 
+        row.appendChild(tdId);
+        row.appendChild(tdDate);
+        row.appendChild(tdKm);
+        row.appendChild(tdIntervention);
         row.appendChild(tdProchainkms);
         row.appendChild(tdProchaindate);
 
@@ -114,17 +106,10 @@ document.addEventListener('DOMContentLoaded', async () => {
       });
 
     } catch (error) {
-      console.error('Erreur:', error);
-      alert(`Erreur: ${error.message}`);
-      
-      // Afficher un message d'erreur dans le tableau
-      const tbody = document.getElementById('table-historique');
-      if (tbody) {
-        tbody.innerHTML = `<tr><td colspan="6" class="error">${error.message}</td></tr>`;
-      }
+      console.error('Erreur générale :', error);
+      alert("Une erreur inattendue est survenue.");
     }
   }
 
-  // Lancement du chargement
   await chargerKilometrages();
 });
