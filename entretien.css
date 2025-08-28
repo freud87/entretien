@@ -24,6 +24,7 @@ header h3 {
 }
 #stats {
       margin-left:10px;
+      background-color: #f57c2c;
 }
 main {
       flex: 1;
